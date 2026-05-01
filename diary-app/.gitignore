@@ -22,3 +22,6 @@ app-example
 /android
 
 expo-env.d.ts
+
+
+*.apk
