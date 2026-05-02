@@ -1,6 +1,4 @@
 
-
-
 export interface Entry {
   id: string
   title: string
@@ -10,11 +8,11 @@ export interface Entry {
   updated_at?: string
 }
 
-export type NewEntry = Omit<Entry, 'id' | 'created_at'>
+export type NewEntry = Omit<Entry, 'id' | 'created_at' | 'updated_at'>
 
 export const MOODS = [
   { id: 'love', label: 'Love', icon: require('../assets/moods/love.png'), category: 'positive' },
-  { id: 'excited', label: 'excited', icon: require('../assets/moods/excited.png'), category: 'positive' },
+  { id: 'excited', label: 'Excited', icon: require('../assets/moods/excited.png'), category: 'positive' },
   { id: 'joy', label: 'Joy', icon: require('../assets/moods/joy.png'), category: 'positive' },
   { id: 'serene', label: 'Serene', icon: require('../assets/moods/serene.png'), category: 'positive' },
   { id: 'capable', label: 'Capable', icon: require('../assets/moods/capable.png'), category: 'positive' },

@@ -1,6 +1,6 @@
 
-import { supabase } from '../lib/supabase' // you'll need to create this
-import { Entry, NewEntry } from '../types/types'
+import { supabase } from './supabase' // you'll need to create this
+import { Entry, NewEntry } from './types'
 
 export async function createEntry(entry: NewEntry): Promise<Entry> {
   const { data: { user } } = await supabase.auth.getUser()
@@ -36,11 +36,14 @@ export async function fetchEntries(): Promise<Entry[]> {
     throw error
   }
 
-  console.log('✅ fetchEntries success:', data)
+  // console.log('✅ fetchEntries success:', data)
   return data
 }
 
-export async function updateEntry(id: string, updates: Partial<NewEntry>): Promise<Entry> {
+export async function modifEntry(id: string, updates: Partial<NewEntry>): Promise<Entry> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No user logged in')
+
   const { data, error } = await supabase
     .from('entries')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -49,11 +52,11 @@ export async function updateEntry(id: string, updates: Partial<NewEntry>): Promi
     .single()
 
   if (error) {
-    console.error('❌ updateEntry error:', error.message, error.details, error.hint)
+    console.error('❌ modifEntry error:', error.message, error.details, error.hint)
     throw error
   }
 
-  console.log('✅ updateEntry success:', data)
+  console.log('✅ modifEntry success:', data)
   return data
 }
 

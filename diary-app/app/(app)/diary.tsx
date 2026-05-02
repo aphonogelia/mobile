@@ -1,20 +1,29 @@
 import { View, StyleSheet, ImageBackground, Pressable, Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useState } from 'react'
-
+import { useEffect, useState } from 'react'
 import DiaryList from '@/components/DiaryList'
 import NewEntryForm from '@/components/NewEntryForm'
-import EntryModal from '@/components/EntryModal' // Import the display modal
-
+import EntryModal from '@/components/EntryModal'
 import { useAppContext } from '@/context/AppContext'
-import { colors, radius } from '@/constants/theme'
-import { Entry } from '@/types/types'
+import { colors, radius } from '@/utils/theme'
+import { supabase } from '@/utils/supabase'
+
 
 export default function Diary() {
-  const { selectedEntry, setSelectedEntry } = useAppContext()
-  const [showForm, setShowForm] = useState(false)
-  const [editEntry, setEditEntry] = useState<Entry | null>(null)
 
+  const { selectedEntry, setSelectedEntry } = useAppContext()
+
+  const [showForm, setShowForm] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    // session becomes null → onAuthStateChange fires → router redirects to login automatically
+  }
 
   return (
     <ImageBackground
@@ -22,10 +31,26 @@ export default function Diary() {
       style={styles.bg}
       resizeMode="cover"
     >
+
       <SafeAreaView style={styles.safe}>
+
         <View style={styles.container}>
 
+          <View style={styles.header}>
+            <Text style={styles.userName}>
+              {user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? ''}
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
+              onPress={handleLogout}
+              hitSlop={8}
+            >
+              <Text style={styles.logoutText}>Logout</Text>
+            </Pressable>
+          </View>
+
           <DiaryList />
+
 
           <Pressable
             style={({ pressed }) => [
@@ -39,10 +64,10 @@ export default function Diary() {
 
           <NewEntryForm
             visible={showForm}
-            editEntry={editEntry}
+            editEntry={selectedEntry} // if new, selectedEntry is null, if edit, it's the entry to edit
             onClose={() => {
               setShowForm(false)
-              setEditEntry(null)
+              setSelectedEntry(null)
             }
             }
           />
@@ -51,10 +76,7 @@ export default function Diary() {
             visible={!!selectedEntry}
             entry={selectedEntry}
             onClose={() => setSelectedEntry(null)}
-            onEdit={(entry) => {
-              setEditEntry(entry)
-              setShowForm(true)
-            }}
+            onEdit={() => { setShowForm(true) }}
           />
         </View>
       </SafeAreaView>
@@ -83,8 +105,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface.card,
     alignItems: 'center',
     justifyContent: 'center',
-    // Added a slight shadow for the FAB to pop against the BG
-    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -98,5 +118,35 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: colors.text.primary,
     lineHeight: 32,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  logoutBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  logoutBtnPressed: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
+  },
+  logoutText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text.primary,
+    letterSpacing: 0.5,
+  },
+  userName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text.primary,
+    letterSpacing: 0.3,
   },
 })

@@ -2,15 +2,21 @@ import { View, Text, Pressable, StyleSheet, ImageBackground } from 'react-native
 import { FontAwesome } from '@expo/vector-icons'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri } from 'expo-auth-session'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/utils/supabase'
 import { useEffect } from 'react'
 
 WebBrowser.maybeCompleteAuthSession()
 
 export default function Landing() {
 
+    // useEffect(() => {
+    //     supabase.auth.signOut()
+    // }, [])
+
     useEffect(() => {
-        supabase.auth.signOut()
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) supabase.auth.signOut()
+        })
     }, [])
 
     const redirectTo = makeRedirectUri({
@@ -24,6 +30,9 @@ export default function Landing() {
             options: {
                 redirectTo,
                 skipBrowserRedirect: true,
+                queryParams: {
+                    prompt: 'select_account',  // forces account picker
+                }
             },
         })
 

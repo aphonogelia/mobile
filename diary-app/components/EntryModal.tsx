@@ -1,12 +1,13 @@
 import { Alert, View, Text, Pressable, Modal, ScrollView, StyleSheet, Image } from 'react-native'
-import { MOODS, type Entry } from '@/types/types'
+import { MOODS, type Entry } from '@/utils/types'
 import { useAppContext } from '@/context/AppContext'
+import { useEffect } from 'react'
 
 type Props = {
   entry: Entry | null
   visible: boolean
   onClose: () => void
-  onEdit: (entry: Entry) => void
+  onEdit: () => void
 }
 
 function formatDate(dateStr: string) {
@@ -20,10 +21,18 @@ function formatDate(dateStr: string) {
 }
 
 export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
-  const { removeEntry } = useAppContext()
+
+  const { removeEntry, error, clearError } = useAppContext()
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error)
+      clearError()
+    }
+  }, [error])
 
   if (!entry) return null
-
+  
   const moodIds = Array.isArray(entry.mood)
     ? entry.mood
     : (entry.mood ? [entry.mood] : [])
@@ -45,8 +54,7 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
   }
 
   const handleEdit = () => {
-    onClose()
-    onEdit(entry)
+    onEdit()
   }
 
   return (
@@ -100,6 +108,8 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
     </Modal>
   )
 }
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -145,3 +145,44 @@ For fetchEntries — no getUserid needed. RLS handles it automatically. When Sup
 The session token is passed automatically via the Supabase client. 
 typescriptexport const supabase = createClient(supabaseUrl, supabaseAnonKey)
 When the user logs in, Supabase stores the session (JWT token) internally in the client. Every request you make through that same supabase instance automatically attaches the token in the request headers — you never have to do it manually.
+
+
+## function vs trigger 
+In PostgreSQL (and therefore Supabase), a function is just a piece of logic stored in the database. It only runs if something explicitly calls it.
+
+# Function
+create function handle_new_user() ...
+Defines what to do
+Not executed automatically
+# Trigger
+create trigger ...
+after insert on auth.users
+Defines when to do it
+Calls the function automatically
+
+
+# Without trigger, your function just sits there.
+Nothing happens when a user signs up:
+auth.users INSERT → no effect on profiles
+You would have to manually call it (which you typically can’t from the client for security reasons).
+
+# With trigger, You connect the two:
+auth.users INSERT → trigger fires → function runs → profiles row created
+
+# Analogy
+Function = a recipe
+Trigger = “cook this recipe every time someone orders”
+Without the trigger, nobody ever cooks.
+
+
+
+## !! converts a value to a boolean.
+
+selectedEntry is Entry | null
+!null → true, !Entry → false
+!!null → false, !!Entry → true
+
+So !!selectedEntry just means "is there a selected entry?". Since visible expects a boolean and selectedEntry is not one, you need the conversion. You could also write it as selectedEntry !== null — same thing, just more explicit.
+
+
+rm ~/.var/app/com.google.AndroidStudio/config/Google/AndroidStudio2025.3.4/.lock

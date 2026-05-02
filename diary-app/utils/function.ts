@@ -1,4 +1,4 @@
-import { Entry } from '@/types/types'
+import { Entry } from '@/utils/types'
 
 export function formatDate(dateStr: string) {
     const d = new Date(dateStr)

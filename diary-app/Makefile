@@ -18,6 +18,8 @@ install:
 android:
 	npx expo start --clear --android 
 
+ios:
+	npx expo start --clear --ios 
 
 web:
 	npx expo start --web 
@@ -26,7 +28,7 @@ tunnel:
 	npx expo start --tunnel --clear
 
 start:
-	npx expo start --tunnel --android --clear
+	npx expo start --tunnel --android  --clear 
 
 studio:
 	/goinfre/htharrau/android-sdk/emulator/emulator -avd Pixel_6 -no-snapshot-load

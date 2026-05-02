@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
-import { Entry, MOODS, MoodId } from '@/types/types'
+import { Entry, MOODS, MoodId } from '@/utils/types'
 import { useAppContext } from '@/context/AppContext'
 import {
-    Alert, Keyboard,
-    View, Text, TextInput, Pressable, Modal, ScrollView,
-    StyleSheet, KeyboardAvoidingView, Platform, Image,
-    type ViewStyle,
+    Alert, Keyboard, View, Text, TextInput, Pressable,
+    Modal, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Image,
 } from 'react-native'
-import { updateEntry } from '@/utils/api'
+
+
 
 type Props = {
     visible: boolean
@@ -15,59 +14,23 @@ type Props = {
     editEntry?: Entry | null
 }
 
+const autoTitle = (content: string) =>
+    content.trim().replace(/\n+/g, ' ').slice(0, 17) + '...'
+
 export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
-    const { addEntry } = useAppContext()
+
+    const { addEntry, updateEntry, error, clearError } = useAppContext()
+
     const [title, setTitle] = useState('')
     const [selectedMoods, setSelectedMoods] = useState<MoodId[]>([])
     const [content, setContent] = useState('')
     const isSaving = useRef(false)
 
     const canSave = content.trim().length > 0
+    const mood = selectedMoods.length > 0 ? selectedMoods : undefined
 
-    const toggleMood = (id: MoodId) => {
-        setSelectedMoods(prev =>
-            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
-        )
-    }
-
-    // prepopulate when editing
-    useEffect(() => {
-        if (editEntry) {
-            setTitle(editEntry.title ?? '')
-            setSelectedMoods(editEntry.mood ?? [])
-            setContent(editEntry.content ?? '')
-        } else {
-            resetForm()
-        }
-    }, [editEntry, visible])
-
-
-    const handleSave = async () => {
-        if (!canSave || isSaving.current) return
-        isSaving.current = true
-        try {
-            if (editEntry) {
-                await updateEntry(editEntry.id, {
-                    title: title.trim() || content.trim().replace(/\n+/g, ' ').slice(0, 17) + '...',
-                    mood: selectedMoods.length > 0 ? selectedMoods : undefined,
-                    content: content.trim(),
-                })
-            } else {
-                await addEntry({
-                    title: title.trim() || content.trim().replace(/\n+/g, ' ').slice(0, 17) + '...', mood: selectedMoods.length > 0 ? selectedMoods : undefined,
-                    content: content.trim(),
-                })
-            }
-            resetForm()
-            onClose()
-        } catch (error) {
-            console.error('Failed to save entry:', error)
-            Alert.alert('Error', 'Failed to save entry. Please try again.')
-        }
-        finally {
-            isSaving.current = false
-        }
-    }
+    const toggleMood = (id: MoodId) =>
+        setSelectedMoods(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id])
 
     const resetForm = () => {
         setTitle('')
@@ -75,47 +38,63 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
         setContent('')
     }
 
-    const handleClose = () => {
-        resetForm()
-        onClose()
+    useEffect(() => {
+        if (!visible) return
+        if (editEntry) {
+            setTitle(editEntry.title ?? '')
+            setSelectedMoods(editEntry.mood ?? [])
+            setContent(editEntry.content ?? '')
+        } else {
+            resetForm()
+        }
+    }, [visible])
+
+    useEffect(() => {
+        if (error) {
+            Alert.alert('Error', error)
+            clearError()
+        }
+    }, [error])
+
+    const handleSave = async () => {
+        console.log('handleSave called, isSaving:', isSaving.current)
+
+        if (!canSave || isSaving.current) return
+        isSaving.current = true
+        try {
+            const payload = { title: title.trim() || autoTitle(content), mood, content: content.trim() }
+            if (editEntry) {
+                await updateEntry(editEntry.id, payload)
+            } else {
+                await addEntry(payload)
+            }
+            resetForm()
+            onClose()
+        } finally {
+            isSaving.current = false
+        }
     }
 
+    const handleClose = () => { resetForm(); onClose() }
+
     return (
-        <Modal
-            visible={visible}
-            animationType="slide"
-            presentationStyle="pageSheet"
-            onRequestClose={handleClose}
-        >
+        <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
-                <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior="padding"
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-                >
-                    <View
-                        style={styles.container}
-                        onLayout={(e) => console.log('container height:', e.nativeEvent.layout.height)}
-                    >
+                <KeyboardAvoidingView style={styles.container} behavior="padding">
+                    <View style={styles.container}>
                         <View style={styles.handle} />
 
-                        {/* Top bar — date left, close right */}
                         <View style={styles.topRow}>
                             <Text style={styles.dateLabel}>
-                                {new Date().toLocaleDateString('en-US', {
-                                    weekday: 'long', month: 'long', day: 'numeric',
-                                })}
+                                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                             </Text>
                             <Pressable style={styles.closeBtn} onPress={handleClose} hitSlop={8}>
                                 <Text style={styles.closeBtnText}>✕</Text>
                             </Pressable>
                         </View>
 
-                        {/* Title */}
                         <TextInput
                             style={styles.titleInput}
-                            onLayout={(e) => console.log('titleInput height:', e.nativeEvent.layout.height)}
-
                             placeholder="Title"
                             placeholderTextColor="#8BAAD4"
                             maxLength={80}
@@ -124,54 +103,34 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                             underlineColorAndroid="transparent"
                         />
 
-
-                        {/* Mood chips — compact 2-row horizontal scroll */}
                         <ScrollView
                             horizontal
-                            onLayout={(e) => console.log('moodScroll height:', e.nativeEvent.layout.height)}
-
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.moodScrollContent}
                             style={styles.moodScroll}
                             keyboardShouldPersistTaps="handled"
                         >
                             <View style={styles.moodGrid}>
-                                <View style={styles.moodRow}>
-                                    {MOODS.filter((_, i) => i % 2 === 0).map((m) => {
-                                        const isSelected = selectedMoods.includes(m.id as MoodId)
-                                        return (
-                                            <Pressable
-                                                key={m.id}
-                                                style={[styles.moodBtn, isSelected && styles.moodBtnSelected]}
-                                                onPress={() => toggleMood(m.id as MoodId)}
-                                            >
-                                                <Image source={m.icon} style={[styles.moodBtnIcon, !isSelected && styles.moodBtnIconUnselected]} />
-                                                <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected]}>{m.label}</Text>
-                                            </Pressable>
-                                        )
-                                    })}
-                                </View>
-                                <View style={styles.moodRow}>
-                                    {MOODS.filter((_, i) => i % 2 === 1).map((m) => {
-                                        const isSelected = selectedMoods.includes(m.id as MoodId)
-                                        return (
-                                            <Pressable
-                                                key={m.id}
-                                                style={[styles.moodBtn, isSelected && styles.moodBtnSelected]}
-                                                onPress={() => toggleMood(m.id as MoodId)}
-                                            >
-                                                <Image source={m.icon} style={[styles.moodBtnIcon, !isSelected && styles.moodBtnIconUnselected]} />
-                                                <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected]}>{m.label}</Text>
-                                            </Pressable>
-                                        )
-                                    })}
-                                </View>
+                                {[0, 1].map(row => (
+                                    <View key={row} style={styles.moodRow}>
+                                        {MOODS.filter((_, i) => i % 2 === row).map(m => {
+                                            const isSelected = selectedMoods.includes(m.id as MoodId)
+                                            return (
+                                                <Pressable
+                                                    key={m.id}
+                                                    style={[styles.moodBtn, isSelected && styles.moodBtnSelected]}
+                                                    onPress={() => toggleMood(m.id as MoodId)}
+                                                >
+                                                    <Image source={m.icon} style={[styles.moodBtnIcon, !isSelected && styles.moodBtnIconUnselected]} />
+                                                    <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected]}>{m.label}</Text>
+                                                </Pressable>
+                                            )
+                                        })}
+                                    </View>
+                                ))}
                             </View>
                         </ScrollView>
 
-
-
-                        {/* Body — flex:1 so it fills all remaining space */}
                         <ScrollView
                             style={styles.bodyScroll}
                             contentContainerStyle={styles.bodyScrollContent}
@@ -191,34 +150,23 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                             />
                         </ScrollView>
 
-
-                        {/* FAB */}
-
-
-
-                        <KeyboardAvoidingView
-                            style={styles.kavFab}
-                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        >
+                        <KeyboardAvoidingView style={styles.kavFab} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                             <Pressable
-                                style={({ pressed }) => [
-                                    styles.fab,
-                                    !canSave && styles.fabDisabled,
-                                    pressed && styles.fabPressed,
-                                ]}
+                                style={({ pressed }) => [styles.fab, !canSave && styles.fabDisabled, pressed && styles.fabPressed]}
                                 onPress={handleSave}
-                                disabled={!canSave}
+                                disabled={!canSave || isSaving.current}
                             >
                                 <Text style={styles.fabIcon}>↑</Text>
                             </Pressable>
                         </KeyboardAvoidingView>
                     </View>
                 </KeyboardAvoidingView>
-
             </Pressable>
-        </Modal >
+        </Modal>
     )
 }
+
+// styles unchanged
 
 const styles = StyleSheet.create({
     container: {
@@ -268,7 +216,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         paddingVertical: 8,
         flexShrink: 0,
-        underlineColorAndroid: 'transparent',
     },
 
     divider: {

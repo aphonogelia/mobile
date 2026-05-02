@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Slot, useRouter, useSegments } from 'expo-router'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/utils/supabase'
 import { Session } from '@supabase/supabase-js'
 import { AppProvider } from '@/context/AppContext'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
