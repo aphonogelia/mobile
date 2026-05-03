@@ -3,35 +3,36 @@ import { FontAwesome } from '@expo/vector-icons'
 import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri } from 'expo-auth-session'
 import { supabase } from '@/utils/supabase'
-import { useEffect } from 'react'
+import { useState } from 'react'
+import { router } from 'expo-router'
+
 
 WebBrowser.maybeCompleteAuthSession()
 
 export default function Landing() {
 
-    // useEffect(() => {
-    //     supabase.auth.signOut()
-    // }, [])
+    const [showButtons, setShowButtons] = useState(false)
+    const redirectTo = makeRedirectUri({ native: 'diaryapp://' })
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) supabase.auth.signOut()
-        })
-    }, [])
-
-    const redirectTo = makeRedirectUri({
-        native: 'diaryapp://',
-    })
-    console.log('redirectTo:', redirectTo)
+    const handleLogin = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('Current session:', session)
+        if (session) {
+            router.replace('/diary')
+        } else {
+            setShowButtons(true)
+        }
+    }
 
     const signInWith = async (provider: 'github' | 'google') => {
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
                 redirectTo,
                 skipBrowserRedirect: true,
                 queryParams: {
-                    prompt: 'select_account',  // forces account picker
+                    prompt: 'select_account',
                 }
             },
         })
@@ -39,8 +40,6 @@ export default function Landing() {
         if (error) { console.error(error); return }
 
         const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo)
-        console.log('result type:', result.type)
-        // console.log('result:', JSON.stringify(result))
 
         if (result.type === 'success') {
             const url = new URL(result.url)
@@ -52,12 +51,8 @@ export default function Landing() {
             console.log('refresh_token:', refresh_token)
 
             if (access_token && refresh_token) {
-                const { data, error } = await supabase.auth.setSession({
-                    access_token,
-                    refresh_token,
-                })
-                // console.log('setSession data:', JSON.stringify(data))
-                console.log('setSession error:', JSON.stringify(error))
+                await supabase.auth.setSession({ access_token, refresh_token })
+                router.replace('/diary')
             }
         }
     }
@@ -69,16 +64,29 @@ export default function Landing() {
             style={styles.container}
             resizeMode="cover"
         >
-            <View style={styles.buttonContainer}>
-                <Pressable style={styles.button} onPress={() => signInWith('github')}>
-                    <FontAwesome name="github" size={18} color="#333" />
-                    <Text style={styles.buttonText}>Login with GitHub</Text>
-                </Pressable>
 
-                <Pressable style={styles.button} onPress={() => signInWith('google')}>
-                    <FontAwesome name="google" size={18} color="#333" />
-                    <Text style={styles.buttonText}>Login with Google</Text>
-                </Pressable>
+            <View style={styles.buttonContainer}>
+
+                {!showButtons ? (
+                    <Pressable style={styles.button} onPress={handleLogin}>
+                        <Text style={styles.buttonText}>Login</Text>
+                    </Pressable>
+                ) : (
+                    <>
+
+                        <View style={styles.buttonContainer}>
+                            <Pressable style={styles.button} onPress={() => signInWith('github')}>
+                                <FontAwesome name="github" size={18} color="#333" />
+                                <Text style={styles.buttonText}>Login with GitHub</Text>
+                            </Pressable>
+
+                            <Pressable style={styles.button} onPress={() => signInWith('google')}>
+                                <FontAwesome name="google" size={18} color="#333" />
+                                <Text style={styles.buttonText}>Login with Google</Text>
+                            </Pressable>
+                        </View>
+                    </>
+                )}
             </View>
         </ImageBackground>
     )

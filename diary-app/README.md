@@ -48,22 +48,25 @@ To learn more about developing your project with Expo, look at the following res
 
 # concept clé de Supabase : Row Level Security (RLS).
 -- Exemple : un user ne voit que SES entrées
+````
 CREATE POLICY "users see own entries"
 ON diary_entries
 FOR SELECT
 USING (auth.uid() = user_id);
+````
 
 # create client supabase
+````
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.SUPABASE_URL!
 const supabaseAnonKey = process.env.SUPABASE_PUBLISHABLE_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
+````
 
 # expo-auth-session vs Supabase OAuth
-
+````
                     expo-auth-session   Supabase OAuth
 Client Secret       Exposed in app ⚠️   Stays on Supabase server ✅
 Token exchange      You handle manually Supabase handles it ✅
@@ -71,7 +74,7 @@ Session management  You handle manually Supabase handles it ✅
 Code complexity     High                Low
 Security            Risky               Safe
 
-
+````
 ## EXPO ROUTER
 
 Avec Expo Router le point d'entrée c'est app/_layout.tsx — Expo Router prend le contrôle automatiquement. Pas de index.ts ou app.tsx à la racine.
@@ -185,4 +188,54 @@ selectedEntry is Entry | null
 So !!selectedEntry just means "is there a selected entry?". Since visible expects a boolean and selectedEntry is not one, you need the conversion. You could also write it as selectedEntry !== null — same thing, just more explicit.
 
 
-rm ~/.var/app/com.google.AndroidStudio/config/Google/AndroidStudio2025.3.4/.lock
+# rm ~/.var/app/com.google.AndroidStudio/config/Google/AndroidStudio2025.3.4/.lock
+
+
+
+
+## React fragments 
+— a way to return multiple elements without adding an extra wrapper <View> or <div> to the layout.
+
+````
+<>
+    <Pressable ...>GitHub</Pressable>
+    <Pressable ...>Google</Pressable>
+</>
+````
+is exactly the same as 
+````<React.Fragment>...</React.Fragment>.```` It groups the two buttons so the ternary has a single return value, without inserting any extra node into the component tree.
+
+````
+useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) supabase.auth.signOut()
+    })
+}, [])
+````
+
+## Expo/React Native doesn't have a built-in storage layer for Supabase to persist the session.
+By default Supabase uses localStorage which doesn't exist in React Native, so the session lives only in memory and dies the moment the component unmounts or the app restarts.
+Fix — add AsyncStorage to your Supabase client:
+npx expo install @react-native-async-storage/async-storage
+
+
+## TEST  IPHONE
+You can't build for iOS on Linux — Xcode is macOS only. Your options are:
+- Use a Mac — run make build with npx expo run:ios instead
+- EAS Build (Expo's cloud build service) — builds the iOS IPA in the cloud without needing a Mac locally:````npx eas build --platform ios --profile development```` 
+
+Then install the build on your iPhone via TestFlight or direct install. You need an Apple Developer account ($99/year) for this.
+For your use case, EAS Build is probably the most realistic path if you want to test on a real iPhone from Linux.
+
+## TEST  ANDROID
+Enable USB debugging on your phone and plug it in:
+
+On your Android phone:
+- Settings → About phone → tap "Build number" 7 times
+- Settings → Developer options → enable "USB debugging"
+
+Plug it in via USB. Check it's detected:
+````/goinfre/htharrau/android-sdk/platform-tools/adb devices````
+You should see your device listed.
+
+Then just run make build — Expo will detect your phone alongside the emulator and ask which one to install on. Pick your phone.

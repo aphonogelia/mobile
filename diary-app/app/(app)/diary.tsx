@@ -7,22 +7,25 @@ import EntryModal from '@/components/EntryModal'
 import { useAppContext } from '@/context/AppContext'
 import { colors, radius } from '@/utils/theme'
 import { supabase } from '@/utils/supabase'
+import { router } from 'expo-router'
 
 
 export default function Diary() {
 
-  const { selectedEntry, setSelectedEntry } = useAppContext()
+  const { selectedEntry, setSelectedEntry, refreshEntries } = useAppContext()
 
   const [showForm, setShowForm] = useState(false)
   const [user, setUser] = useState<any>(null)
 
+  // getUser info for the profile
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+    refreshEntries()
   }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    // session becomes null → onAuthStateChange fires → router redirects to login automatically
+    router.replace('/(auth)/landing')
   }
 
   return (
