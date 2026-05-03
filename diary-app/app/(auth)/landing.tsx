@@ -75,14 +75,14 @@ export default function Landing() {
                     <>
 
                         <View style={styles.buttonContainer}>
-                            <Pressable style={styles.button} onPress={() => signInWith('github')}>
+                            <Pressable style={styles.providerButton} onPress={() => signInWith('github')}>
                                 <FontAwesome name="github" size={18} color="#333" />
-                                <Text style={styles.buttonText}>Login with GitHub</Text>
+                                <Text style={styles.providerButtonText}>Login with GitHub</Text>
                             </Pressable>
 
-                            <Pressable style={styles.button} onPress={() => signInWith('google')}>
+                            <Pressable style={styles.providerButton} onPress={() => signInWith('google')}>
                                 <FontAwesome name="google" size={18} color="#333" />
-                                <Text style={styles.buttonText}>Login with Google</Text>
+                                <Text style={styles.providerButtonText}>Login with Google</Text>
                             </Pressable>
                         </View>
                     </>
@@ -103,6 +103,18 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     button: {
+        width: 160,
+        height: 52,
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        gap: 10,
+        borderWidth: 2,
+        borderColor: '#686868',
+    },
+    providerButton: {
         width: 200,
         height: 50,
         borderRadius: 8,
@@ -113,6 +125,11 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     buttonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    providerButtonText: {
         fontSize: 14,
         color: '#333',
     },

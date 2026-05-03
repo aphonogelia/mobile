@@ -12,7 +12,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/heart.png",
+        "foregroundImage": "./assets/images/brain.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.aphonogelia.diaryapp"

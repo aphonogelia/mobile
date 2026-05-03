@@ -68,13 +68,15 @@ fclean: clean
 # ─── NUCLEAR RESET ───────────────────────────────────────────────────────────
 
 # Full reset: kills processes, cleans everything, reinstalls deps,
-# boots emulator, recompiles native code, installs APK, starts Metro.
+# boots emulator, prebuild, recompiles native code, installs APK, starts Metro.
 re: fclean
 	@echo "Killing any running Expo/Metro processes..."
-	-pkill -f "expo" || true
-	-pkill -f "metro" || true
+	-pkill -f "expo" 2>/dev/null; true
+	-pkill -f "metro" 2>/dev/null; true
 	@echo "Installing dependencies..."
 	$(MAKE) install
+	@echo "Regenerating android/ folder from app.json..."
+	npx expo prebuild --clean --platform android
 	@echo "Launching emulator..."
 	/goinfre/htharrau/android-sdk/emulator/emulator -avd Pixel_6 -no-snapshot-load &
 	@echo "Waiting for emulator to boot..."
