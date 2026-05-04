@@ -1,34 +1,24 @@
-import { View, StyleSheet, ImageBackground, Pressable, Text } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useEffect, useState } from 'react'
 import DiaryList from '@/components/DiaryList'
-import NewEntryForm from '@/components/NewEntryForm'
 import EntryModal from '@/components/EntryModal'
+import NewEntryForm from '@/components/NewEntryForm'
+import Profile from '@/components/Profile'
 import { useAppContext } from '@/context/AppContext'
 import { colors, radius } from '@/utils/theme'
-import { supabase } from '@/utils/supabase'
-import { router } from 'expo-router'
+import { useState } from 'react'
+import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+
 
 
 export default function Diary() {
 
-  const { selectedEntry, setSelectedEntry, refreshEntries } = useAppContext()
+  const { selectedEntry, setSelectedEntry } = useAppContext()
 
   const [showForm, setShowForm] = useState(false)
-  const [user, setUser] = useState<any>(null)
 
-  // getUser info for the profile
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
-    refreshEntries()
-  }, [])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.replace('/(auth)/landing')
-  }
 
   return (
+
     <ImageBackground
       source={require('../../assets/images/bgBlue.webp')}
       style={styles.bg}
@@ -39,21 +29,9 @@ export default function Diary() {
 
         <View style={styles.container}>
 
-          <View style={styles.header}>
-            <Text style={styles.userName}>
-              {user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? ''}
-            </Text>
-            <Pressable
-              style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
-              onPress={handleLogout}
-              hitSlop={8}
-            >
-              <Text style={styles.logoutText}>Logout</Text>
-            </Pressable>
-          </View>
+          <Profile onProfileEdit={() => setShowForm(true)} />
 
           <DiaryList />
-
 
           <Pressable
             style={({ pressed }) => [
@@ -97,6 +75,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'rgba(0, 66, 153, 0.6)',
     flex: 1,
+    zIndex: 0,
   },
   fab: {
     position: 'absolute',
@@ -122,34 +101,5 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     lineHeight: 32,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  logoutBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-  },
-  logoutBtnPressed: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
-  },
-  logoutText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text.primary,
-    letterSpacing: 0.5,
-  },
-  userName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text.primary,
-    letterSpacing: 0.3,
-  },
+
 })
