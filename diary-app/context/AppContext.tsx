@@ -22,6 +22,7 @@ interface AppContextType {
   clearError: () => void
   profile: UserProfile | null
   updateProfile: (updates: { userName?: string, avatarUrl?: string }) => Promise<void>
+  setError: (error: string | null) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -159,7 +160,7 @@ const updateProfile = async (updates: { userName?: string; avatarUrl?: string })
       clearError, updateEntry,
       profile: { entryCount, userName, avatarUrl },
       updateProfile,
-
+      setError
 
     }}>
       {children}

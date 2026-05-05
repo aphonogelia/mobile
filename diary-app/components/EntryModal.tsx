@@ -1,7 +1,7 @@
-import { Alert, View, Text, Pressable, Modal, ScrollView, StyleSheet, Image } from 'react-native'
-import { MOODS, type Entry } from '@/utils/types'
 import { useAppContext } from '@/context/AppContext'
+import { MOODS, type Entry } from '@/utils/types'
 import { useEffect } from 'react'
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 type Props = {
   entry: Entry | null
@@ -12,12 +12,14 @@ type Props = {
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', {
+  const date = d.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return { date, time }
 }
 
 export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
@@ -32,7 +34,7 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
   }, [error])
 
   if (!entry) return null
-  
+
   const moodIds = Array.isArray(entry.mood)
     ? entry.mood
     : (entry.mood ? [entry.mood] : [])
@@ -53,6 +55,9 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
     ])
   }
 
+  const { date, time } = formatDate(entry.created_at)
+
+
   const handleEdit = () => {
     onEdit()
   }
@@ -68,7 +73,10 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
         <View style={styles.handle} />
 
         <View style={styles.topRow}>
-          <Text style={styles.dateLabel}>{formatDate(entry.created_at)}</Text>
+          <View style={styles.dateTimeCol}>
+            <Text style={styles.dateLabel}>{date}</Text>
+            <Text style={styles.timeLabel}>{time}</Text>
+          </View>
           <View style={styles.topActions}>
             <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={8}>
               <Text style={styles.closeBtnText}>✕</Text>
@@ -139,8 +147,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    flex: 1,
-    marginRight: 12,
   },
   topActions: {
     flexDirection: 'row',
@@ -245,5 +251,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1A2E44',
     lineHeight: 26,
+  },
+  dateTimeCol: {
+    flex: 1,
+    marginRight: 12,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  timeLabel: {
+    fontSize: 9,
+    color: '#5A7FB5',
+    fontWeight: '500',
+    marginTop: 2,
+    letterSpacing: 0.5,
   },
 })

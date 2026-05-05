@@ -1,7 +1,7 @@
 import { useAppContext } from '@/context/AppContext'
 import { uploadAvatar } from '@/utils/api'
 import { supabase } from '@/utils/supabase'
-import { colors, radius } from '@/utils/theme'
+import { colors, radius, spacing, typography } from '@/utils/theme'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
@@ -29,10 +29,10 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
         if (!permission.granted) return
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
-            aspect: [1, 1],  // square crop
-            quality: 0.5,    // compress a bit
+            aspect: [1, 1],
+            quality: 0.5,
         })
 
         if (!result.canceled) {
@@ -43,67 +43,76 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
         }
     }
 
-
-
     return (
         <>
             <View style={styles.header}>
+                {/* Left: avatar */}
+                <Image
+                    source={profile.avatarUrl
+                        ? { uri: profile.avatarUrl }
+                        : require('@/assets/images/girl.png')
+                    }
+                    style={styles.avatar}
+                />
 
-                <View style={styles.pic}>
-                    <Image
-                        source={profile.avatarUrl
-                            ? { uri: profile.avatarUrl }
-                            : require('@/assets/images/girl.png')
-                        }
-                        style={styles.avatar}
-                    />
-                    <View style={styles.right}>
-                        <Text style={styles.userName}>
-                            {profile.userName ? profile.userName : 'Nameless User'}
-                        </Text>
-                        <Text style={styles.entryCount}>
-                            {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
-                        </Text>
-                        <Pressable
-                            style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
-                            onPress={handleLogout}
-                            hitSlop={8}
-                        >
-                            <Text style={styles.logoutText}>Logout</Text>
-                        </Pressable>
-                        <Pressable
-                            style={styles.editBtn}
-                            onPress={openSheet}
-                            hitSlop={8}
-                        >
-                            <Text>⚙️</Text>
-                        </Pressable>
+                {/* Center: name + entry count */}
+                <View style={styles.info}>
+                    <Text style={styles.userName} numberOfLines={1}>
+                        {profile.userName ?? 'Nameless User'}
+                    </Text>
+                    <Text style={styles.entryCount}>
+                        {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
+                    </Text>
+                </View>
 
-                    </View>
-
+                {/* Right: actions */}
+                <View style={styles.actions}>
+                    <Pressable
+                        style={styles.iconBtn}
+                        onPress={() => router.replace('/calendar')}
+                        hitSlop={8}
+                    >
+                        <Text style={styles.iconBtnText}>📅</Text>
+                    </Pressable>
+                    <Pressable
+                        style={styles.iconBtn}
+                        onPress={openSheet}
+                        hitSlop={8}
+                    >
+                        <Text style={styles.iconBtnText}>⚙️</Text>
+                    </Pressable>
+                    <Pressable
+                        style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
+                        onPress={handleLogout}
+                        hitSlop={8}
+                    >
+                        <Text style={styles.logoutText}>Out</Text>
+                    </Pressable>
                 </View>
             </View>
-
 
             <BottomSheet
                 ref={bottomSheetRef}
                 index={-1}
-                snapPoints={['30%']}
+                snapPoints={['25%']}
                 enablePanDownToClose
                 onClose={() => setView('menu')}
                 backdropComponent={(props) => (
                     <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} />
                 )}
                 style={{ zIndex: 999 }}
+                containerStyle={{ zIndex: 999, elevation: 999 }}
+                backgroundStyle={{ backgroundColor: colors.brand.deep, borderColor: colors.border.light, borderWidth: 1 }}
+                handleIndicatorStyle={{ backgroundColor: colors.text.muted }}
             >
                 <BottomSheetView style={styles.sheetContent}>
                     {view === 'menu' ? (
                         <>
                             <Pressable style={styles.sheetOption} onPress={() => setView('name')}>
-                                <Text style={styles.sheetOptionText}>✏️ Change name</Text>
+                                <Text style={styles.sheetOptionText}>✏️ Name</Text>
                             </Pressable>
                             <Pressable style={styles.sheetOption} onPress={handleChangePhoto}>
-                                <Text style={styles.sheetOptionText}>🖼️ Change photo</Text>
+                                <Text style={styles.sheetOptionText}>🖼️ Photo</Text>
                             </Pressable>
                         </>
                     ) : (
@@ -113,6 +122,7 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
                                 value={nameInput}
                                 onChangeText={setNameInput}
                                 placeholder="Your name"
+                                placeholderTextColor={colors.text.muted}
                                 autoFocus
                             />
                             <Pressable style={styles.sheetOption} onPress={async () => {
@@ -129,28 +139,98 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
     )
 }
 
-
-
 const styles = StyleSheet.create({
-    userName: { fontSize: 18, fontWeight: '600', color: colors.text.primary, letterSpacing: 0.9 },
-    avatar: { width: 100, height: 100, borderRadius: 20 },
-    pic: { flexDirection: 'row' },
-    entryCount: { fontSize: 12, color: colors.text.secondary, letterSpacing: 0.5 },
-    right: { marginLeft: 12, justifyContent: 'space-around', flexDirection: 'column' },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8 },
-    logoutBtn: { paddingHorizontal: 30, paddingVertical: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' },
-    logoutBtnPressed: { backgroundColor: 'rgba(255,255,255,0.25)' },
-    editBtn: { paddingHorizontal: 2, paddingVertical: 2 },
-    logoutText: { fontSize: 12, fontWeight: '600', color: colors.text.primary, letterSpacing: 0.5 },
-    sheetContent: { padding: 16, gap: 12 },
-    sheetOption: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.1)' },
-    sheetOptionText: { fontSize: 16, color: colors.text.primary, fontWeight: '500' },
-    input: {
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
-        borderRadius: radius.md,
-        padding: 12,
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        gap: spacing.sm,
+    },
+    avatar: {
+        width: 48,
+        height: 48,
+        borderRadius: radius.full,
+        borderWidth: 2,
+        borderColor: colors.border.medium,
+    },
+    info: {
+        flex: 1,
+    },
+    userName: {
+        fontSize: typography.sizes.md,
+        fontWeight: typography.weights.semibold,
         color: colors.text.primary,
-        fontSize: 16,
-    }
+        letterSpacing: 0.3,
+    },
+    entryCount: {
+        fontSize: typography.sizes.xs,
+        color: colors.text.muted,
+        marginTop: 1,
+    },
+    actions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+    },
+    iconBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: radius.full,
+        backgroundColor: colors.surface.glass,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: colors.border.light,
+    },
+    iconBtnText: {
+        fontSize: 14,
+    },
+    logoutBtn: {
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 6,
+        borderRadius: radius.full,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.light,
+    },
+    logoutBtnPressed: {
+        backgroundColor: colors.surface.glassHover,
+    },
+    logoutText: {
+        fontSize: typography.sizes.xs,
+        fontWeight: typography.weights.semibold,
+        color: colors.text.primary,
+        letterSpacing: 0.5,
+    },
+    sheetContent: {
+        flexDirection: 'row',
+        padding: spacing.md,
+        gap: spacing.sm,
+    },
+    sheetOption: {
+        flex: 1,
+        paddingVertical: 14,
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.md,
+        backgroundColor: colors.surface.card,
+        borderWidth: 1,
+        borderColor: colors.border.light,
+        alignItems: 'center',
+    },
+    sheetOptionText: {
+        fontSize: typography.sizes.md,
+        color: colors.text.primary,
+        fontWeight: typography.weights.medium,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: colors.border.medium,
+        borderRadius: radius.md,
+        padding: spacing.md,
+        color: colors.text.primary,
+        fontSize: typography.sizes.md,
+        backgroundColor: colors.surface.glass,
+    },
 })

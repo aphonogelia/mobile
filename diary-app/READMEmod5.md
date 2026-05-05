@@ -152,3 +152,153 @@ bottomSheetRef.current?.expand()
               └── the actual BottomSheet component instance
                   (? because it could still be null)
 So instead of controlling open/closed with state like const [isOpen, setIsOpen] = useState(false), you call methods directly on the component — expand() to open, close() to close. That's the pattern @gorhom/bottom-sheet uses.
+
+
+# Expo Cheat Sheet
+
+## Project setup
+```
+npx create-expo-app my-app
+cd my-app
+npx expo start
+```
+## Installing dependencies (RULES)
+Expo / React Native packages (IMPORTANT)
+npx expo install <package>
+
+Examples:
+
+npx expo install expo-font expo-constants expo-linking
+npx expo install react-native-reanimated
+npx expo install expo-router
+
+👉 Always use for:
+
+Expo SDK packages
+React Native native modules
+anything touching iOS/Android runtime
+Generic JS libraries
+```npm install <package>```
+
+Examples:  ```npm install axios lodash zod```
+👉 Only for pure JS logic (no native code)
+
+## Running app
+```
+npx expo start
+```
+Useful: ```npx expo start -c   # clear cache```
+## Debugging commands
+Check project health```npx expo doctor```
+Detects:
+
+version mismatch
+missing deps
+incompatible SDK packages
+Full reset (when broken)
+```
+rm -rf node_modules package-lock.json
+npm install
+```
+
+or:
+```
+npx expo install --fix
+Clear Metro cache
+npx expo start -c
+```
+## React / Expo version rules
+
+❌ Don’t install manually:
+
+npm install react react-native react-dom
+
+✔ Correct:
+
+npx expo install react react-dom
+## Reanimated setup (if used)
+babel.config.js
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: ['react-native-reanimated/plugin'], // MUST be last
+}
+## Common errors & fixes
+
+### Peer dependency conflicts
+
+Temporary fix: ```npm install --legacy-peer-deps``` 👉 Use only for debugging, not final state
+
+### Expo mismatch errors
+
+Fix by: 
+```
+npx expo install react react-dom
+npx expo doctor
+```
+
+## Mental model
+```
+  Action            	          Command
+Expo-native dependency	        expo install
+JS library	                    npm install
+Run app	                        expo start
+Debug setup	                    expo doctor
+Reset cache	                    expo start -c
+```
+
+
+
+Android can't upload raw file URIs (file:///...) directly to Supabase Storage — you need to fetch the local URI first and convert it to a blob. Share your uploadAvatar function and I can give you the exact fix.
+
+
+# Android Debug Bridge
+
+ADB = Android Debug Bridge — it's a command line tool that lets you communicate with your Android emulator (or a real phone) from your terminal. Think of it as a bridge between your Mac and the virtual Android device.
+You can use it to:
+
+push/pull files to the emulator
+run shell commands inside Android
+install APKs
+see logs
+
+Devices
+```
+adb devices
+```
+Files
+```
+adb push <local> <remote> — send file from Mac to emulator
+adb pull <remote> <local> — grab file from emulator to Mac
+```
+App
+```
+adb install app.apk — install an APK
+adb uninstall com.package.name — uninstall an app
+```
+Logs
+```
+adb logcat — stream all Android logs (very noisy, but useful)
+```
+Shell
+```
+adb shell — open a terminal inside Android
+adb shell <command> — run a single command and exit
+```
+Device
+```
+adb devices — list connected devices/emulators
+adb reboot — reboot the emulator
+```
+
+
+
+adb push ~/Pictures/tiger.png /sdcard/Pictures/  
+adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+  -d file:///sdcard/Pictures/photo.jpg
+adb shell "cd /sdcard/Pictures  && ls"
+The files are pushed to /sdcard/Pictures/ — let's verify:
+bashadb shell ls /sdcard/Pictures/
+If they show up there but you can't see them in the Gallery app, the media scanner hasn't indexed them yet. Force a rescan:
+bashadb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Pictures/
+
+The ?t=${Date.now()} cache buster is a classic gotcha with Supabase storage (and S3-style storage in general) — since the file path stays the same on upsert, the CDN and React Native's image cache both think nothing changed.

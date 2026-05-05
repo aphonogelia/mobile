@@ -1,17 +1,30 @@
-import { View, Text, ActivityIndicator, SectionList, StyleSheet, Pressable, Image } from 'react-native'
-import { MOODS } from '@/utils/types'
 import { useAppContext } from '@/context/AppContext'
-import { colors, typography, spacing, radius } from '@/utils/theme'
 import { groupEntriesByDate } from '@/utils/function'
+import { colors, radius, spacing, typography } from '@/utils/theme'
+import { MOODS } from '@/utils/types'
+import { ActivityIndicator, Image, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
+interface DiaryListProps {
+    mode?: 'preview' | 'full'  // preview = last 2 entries, full = all
+    filterDate?: string         // for calendar view: only show entries from this date
+}
 
-export default function DiaryList() {
+export default function DiaryList({ mode = 'preview', filterDate }: DiaryListProps) {
 
     const { entries, setSelectedEntry, loading } = useAppContext()
-    
-    const groupedEntries = groupEntriesByDate(entries)
 
-    // loading  
+    // filter by date if provided (calendar view)
+    const filteredEntries = filterDate
+        ? entries.filter(e => e.created_at?.startsWith(filterDate))
+        : entries
+
+    // in preview mode, only show last 2
+    const displayEntries = mode === 'preview'
+        ? filteredEntries.slice(0, 2)
+        : filteredEntries
+
+    const groupedEntries = groupEntriesByDate(displayEntries)
+
     if (loading && entries.length === 0)
         return (
             <View style={styles.loader}>
@@ -19,11 +32,48 @@ export default function DiaryList() {
             </View>
         )
 
-    // no entries
-    if (entries.length === 0) {
+    if (displayEntries.length === 0) {
         return (
             <View style={styles.empty}>
                 <Text style={styles.emptyText}>No entries</Text>
+            </View>
+        )
+    }
+
+    if (mode === 'preview') {
+        return (
+            <View style={styles.list}>
+                {displayEntries.map(item => {
+                    const moodIds = Array.isArray(item.mood) ? item.mood : item.mood ? [item.mood] : []
+                    const selectedMoods = MOODS.filter(m => moodIds.includes(m.id))
+                    const time = item.created_at
+                        ? new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : null
+
+                    return (
+                        <Pressable
+                            key={item.id} 
+                            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+                            onPress={() => setSelectedEntry(item)}
+                        >
+                            <View style={styles.cardHeader}>
+                                <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                                {time && <Text style={styles.cardTime}>{time}</Text>}
+                            </View>
+
+                            {selectedMoods.length > 0 && (
+                                <View style={styles.moodRow}>
+                                    {selectedMoods.map(m => (
+                                        <Image key={m.id} source={m.icon} style={styles.moodIcon} />
+                                    ))}
+                                    {selectedMoods.length === 1 && (
+                                        <Text style={styles.moodLabel}>{selectedMoods[0].label}</Text>
+                                    )}
+                                </View>
+                            )}
+                        </Pressable>
+                    )
+                })}
             </View>
         )
     }
@@ -40,14 +90,20 @@ export default function DiaryList() {
                 const moodIds = Array.isArray(item.mood) ? item.mood : item.mood ? [item.mood] : []
                 const selectedMoods = MOODS.filter(m => moodIds.includes(m.id))
 
-
+                // format time from created_at
+                const time = item.created_at
+                    ? new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : null
 
                 return (
                     <Pressable
                         style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
                         onPress={() => setSelectedEntry(item)}
                     >
-                        <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                            {time && <Text style={styles.cardTime}>{time}</Text>}
+                        </View>
 
                         {selectedMoods.length > 0 && (
                             <View style={styles.moodRow}>
@@ -87,11 +143,22 @@ const styles = StyleSheet.create({
         padding: spacing.sm,
     },
     cardPressed: { backgroundColor: colors.surface.glassHover },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        marginBottom: spacing.xs,
+    },
     cardTitle: {
         fontSize: typography.sizes.lg,
         fontWeight: typography.weights.semibold,
         color: colors.text.primary,
-        marginBottom: spacing.xs,
+        flex: 1,
+    },
+    cardTime: {
+        fontSize: typography.sizes.xs,
+        color: colors.text.muted,
+        marginLeft: spacing.sm,
     },
     loader: {
         flex: 1,

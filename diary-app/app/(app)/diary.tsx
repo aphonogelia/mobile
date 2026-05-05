@@ -2,8 +2,9 @@ import DiaryList from '@/components/DiaryList'
 import EntryModal from '@/components/EntryModal'
 import NewEntryForm from '@/components/NewEntryForm'
 import Profile from '@/components/Profile'
+import Stats from '@/components/Stats'
 import { useAppContext } from '@/context/AppContext'
-import { colors, radius } from '@/utils/theme'
+import { colors, radius, spacing } from '@/utils/theme'
 import { useState } from 'react'
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -27,45 +28,60 @@ export default function Diary() {
 
       <SafeAreaView style={styles.safe}>
 
-        <View style={styles.container}>
+        <Profile onProfileEdit={() => setShowForm(true)} />
+        <View style={styles.divider} />
 
-          <Profile onProfileEdit={() => setShowForm(true)} />
+          <DiaryList mode="preview" />
 
-          <DiaryList />
+        <View style={styles.divider} />
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.fab,
-              pressed && styles.fabPressed,
-            ]}
-            onPress={() => setShowForm(true)}
-          >
-            <Text style={styles.fabIcon}>+</Text>
-          </Pressable>
-
-          <NewEntryForm
-            visible={showForm}
-            editEntry={selectedEntry} // if new, selectedEntry is null, if edit, it's the entry to edit
-            onClose={() => {
-              setShowForm(false)
-              setSelectedEntry(null)
-            }
-            }
-          />
-
-          <EntryModal
-            visible={!!selectedEntry}
-            entry={selectedEntry}
-            onClose={() => setSelectedEntry(null)}
-            onEdit={() => { setShowForm(true) }}
-          />
+        <View style={styles.statsContainer}>
+          <Stats />
         </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.fab,
+            pressed && styles.fabPressed,
+          ]}
+          onPress={() => setShowForm(true)}
+        >
+          <Text style={styles.fabIcon}>+</Text>
+        </Pressable>
+
+        <NewEntryForm
+          visible={showForm}
+          editEntry={selectedEntry} // if new, selectedEntry is null, if edit, it's the entry to edit
+          onClose={() => {
+            setShowForm(false)
+            setSelectedEntry(null)
+          }
+          }
+        />
+
+        <EntryModal
+          visible={!!selectedEntry}
+          entry={selectedEntry}
+          onClose={() => setSelectedEntry(null)}
+          onEdit={() => { setShowForm(true) }}
+        />
+
       </SafeAreaView>
     </ImageBackground>
   )
 }
 
 const styles = StyleSheet.create({
+
+  statsContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 66, 153, 0.6)',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border.light,
+    marginHorizontal: spacing.md,
+  },
   bg: {
     flex: 1,
   },
@@ -75,7 +91,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'rgba(0, 66, 153, 0.6)',
     flex: 1,
-    zIndex: 0,
   },
   fab: {
     position: 'absolute',
