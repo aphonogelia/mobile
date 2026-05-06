@@ -2,6 +2,7 @@ import { useAppContext } from '@/context/AppContext'
 import { uploadAvatar } from '@/utils/api'
 import { supabase } from '@/utils/supabase'
 import { colors, radius, spacing, typography } from '@/utils/theme'
+import { Ionicons } from '@expo/vector-icons'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
@@ -9,9 +10,12 @@ import { useRef, useState } from 'react'
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 
 
-export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }) {
 
-    const { profile, updateProfile } = useAppContext()
+export default function Profile() {
+
+
+    const { profile, updateProfile, currentView } = useAppContext()
+    console.log('Rendering Profile component', { currentView })
     const bottomSheetRef = useRef<BottomSheet>(null)
     const openSheet = () => bottomSheetRef.current?.expand()
     const closeSheet = () => bottomSheetRef.current?.close()
@@ -60,44 +64,50 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
                     <Text style={styles.userName} numberOfLines={1}>
                         {profile.userName ?? 'Nameless User'}
                     </Text>
+
                     <Text style={styles.entryCount}>
                         {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
                     </Text>
+
                 </View>
 
                 {/* Right: actions */}
                 <View style={styles.actions}>
                     <Pressable
-                        style={styles.iconBtn}
-                        onPress={() => router.replace('/calendar')}
+                        style={({ pressed }) => [styles.navBtn, pressed && styles.logoutBtnPressed]}
+                        onPress={() => router.replace(currentView === 'home' ? '/(tabs)/calendar' : '/(tabs)/diary')}
                         hitSlop={8}
                     >
-                        <Text style={styles.iconBtnText}>📅</Text>
+                        {currentView === 'home'
+                            ? <Ionicons name="calendar-outline" size={14} color={colors.text.primary} />
+                            : <Ionicons name="home-outline" size={14} color={colors.text.primary} />
+                        }
+                        <Text style={styles.logoutText}>
+                            {currentView === 'home' ? 'Calendar' : 'Home'}
+                        </Text>
                     </Pressable>
-                    <Pressable
-                        style={styles.iconBtn}
-                        onPress={openSheet}
-                        hitSlop={8}
-                    >
-                        <Text style={styles.iconBtnText}>⚙️</Text>
-                    </Pressable>
-                    <Pressable
-                        style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
-                        onPress={handleLogout}
-                        hitSlop={8}
-                    >
-                        <Text style={styles.logoutText}>Out</Text>
-                    </Pressable>
+
+                    <View style={styles.iconRow}>
+                        <Pressable style={styles.iconBtn} onPress={openSheet} hitSlop={8}>
+                            <Ionicons name="settings-outline" size={16} color={colors.text.primary} />
+                        </Pressable>
+                        <Pressable style={styles.iconBtn} onPress={handleLogout} hitSlop={8}>
+                            <Ionicons name="log-out-outline" size={16} color={colors.text.primary} />
+                        </Pressable>
+                    </View>
                 </View>
             </View>
 
             <BottomSheet
                 ref={bottomSheetRef}
                 index={-1}
-                snapPoints={['25%']}
+                snapPoints={view === 'name' ? ['55%'] : ['10%']}
+                keyboardBehavior="extend"      // sheet extends up with keyboard
+                keyboardBlurBehavior="restore" // snaps back down when keyboard closes
+                android_keyboardInputMode="adjustResize"
                 enablePanDownToClose
                 onClose={() => setView('menu')}
-                backdropComponent={(props) => (
+                backdropComponent={(props: any) => (
                     <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} />
                 )}
                 style={{ zIndex: 999 }}
@@ -109,10 +119,10 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
                     {view === 'menu' ? (
                         <>
                             <Pressable style={styles.sheetOption} onPress={() => setView('name')}>
-                                <Text style={styles.sheetOptionText}>✏️ Name</Text>
+                                <Text style={styles.sheetOptionText}>Change my name</Text>
                             </Pressable>
                             <Pressable style={styles.sheetOption} onPress={handleChangePhoto}>
-                                <Text style={styles.sheetOptionText}>🖼️ Photo</Text>
+                                <Text style={styles.sheetOptionText}>Change my picture</Text>
                             </Pressable>
                         </>
                     ) : (
@@ -139,7 +149,26 @@ export default function Profile({ onProfileEdit }: { onProfileEdit: () => void }
     )
 }
 
+
+
 const styles = StyleSheet.create({
+    iconRow: {
+        flexDirection: 'row',
+        gap: spacing.xs,
+    },
+    navBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 6,
+        borderRadius: radius.full,
+        backgroundColor: colors.surface.glass,
+        borderWidth: 1,
+        borderColor: colors.border.light,
+        width: 80,
+        justifyContent: 'center',
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -169,19 +198,15 @@ const styles = StyleSheet.create({
         marginTop: 1,
     },
     actions: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         gap: spacing.xs,
     },
     iconBtn: {
         width: 32,
         height: 32,
-        borderRadius: radius.full,
-        backgroundColor: colors.surface.glass,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: colors.border.light,
     },
     iconBtnText: {
         fontSize: 14,
@@ -193,6 +218,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface.glass,
         borderWidth: 1,
         borderColor: colors.border.light,
+        width: 67,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     logoutBtnPressed: {
         backgroundColor: colors.surface.glassHover,
@@ -211,17 +239,21 @@ const styles = StyleSheet.create({
     sheetOption: {
         flex: 1,
         paddingVertical: 14,
+        // width: '100%',
+        // height: '150%',
         paddingHorizontal: spacing.md,
         borderRadius: radius.md,
-        backgroundColor: colors.surface.card,
+        backgroundColor: colors.border.light,
         borderWidth: 1,
         borderColor: colors.border.light,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     sheetOptionText: {
-        fontSize: typography.sizes.md,
+        fontSize: typography.sizes.lg,
         color: colors.text.primary,
         fontWeight: typography.weights.medium,
+        textAlign: 'center',
     },
     input: {
         flex: 1,

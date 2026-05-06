@@ -23,6 +23,10 @@ interface AppContextType {
   profile: UserProfile | null
   updateProfile: (updates: { userName?: string, avatarUrl?: string }) => Promise<void>
   setError: (error: string | null) => void
+  currentView: 'home' | 'calendar'
+  setCurrentView: (view: 'home' | 'calendar') => void
+  selectedDate: Date | null
+  setSelectedDate: (date: Date | null) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -35,7 +39,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userName, setUserName] = useState<string | null>(null)
   const [entryCount, setEntryCount] = useState<number>(0)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-
+  const [currentView, setCurrentView] = useState<'home' | 'calendar'>('home')
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
   const refreshEntries = async () => {
     setLoading(true)
     try {
@@ -91,18 +96,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-const updateProfile = async (updates: { userName?: string; avatarUrl?: string }) => {
-  try {
-    await editProfile({
-      full_name: updates.userName,
-      avatar_url: updates.avatarUrl
-    })
-    if (updates.userName) setUserName(updates.userName)
-    if (updates.avatarUrl) setAvatarUrl(updates.avatarUrl)
-  } catch {
-    setError('Failed to update profile')
+  const updateProfile = async (updates: { userName?: string; avatarUrl?: string }) => {
+    try {
+      await editProfile({
+        full_name: updates.userName,
+        avatar_url: updates.avatarUrl
+      })
+      if (updates.userName) setUserName(updates.userName)
+      if (updates.avatarUrl) setAvatarUrl(updates.avatarUrl)
+    } catch {
+      setError('Failed to update profile')
+    }
   }
-}
 
 
   const fetchNameURL = async () => {
@@ -160,7 +165,9 @@ const updateProfile = async (updates: { userName?: string; avatarUrl?: string })
       clearError, updateEntry,
       profile: { entryCount, userName, avatarUrl },
       updateProfile,
-      setError
+      setError,
+      currentView, setCurrentView,
+      selectedDate, setSelectedDate
 
     }}>
       {children}

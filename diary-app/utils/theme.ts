@@ -45,13 +45,13 @@ export const colors = {
   // Surfaces — translucent, sit on top of the background image
   surface: {
     glass: 'rgba(255, 255, 255, 0.12)',       // subtle card
-    glassHover: 'rgba(255, 255, 255, 0.18)',
+    glassHover: 'rgba(255, 255, 255, 0.28)',
     card: 'rgba(255, 255, 255, 0.22)',         // standard card
-    cardBorder: 'rgba(255, 255, 255, 0.28)',
+    cardBorder: 'rgba(255, 255, 255, 0.38)',
     dark: 'rgba(1, 20, 60, 0.45)',             // dark card
-    darkBorder: 'rgba(255, 255, 255, 0.10)',
+    darkBorder: 'rgba(255, 255, 255, 0.20)',
     solid: 'rgba(255, 255, 255, 0.95)',        // opaque card (highest contrast)
-    solidBorder: 'rgba(255, 255, 255, 0.30)',
+    solidBorder: 'rgba(255, 255, 255, 0.40)',
   },
 
   // Text — for use on top of the background image

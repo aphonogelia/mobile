@@ -4,18 +4,24 @@ import { colors, radius, spacing, typography } from '@/utils/theme'
 import { MOODS } from '@/utils/types'
 import { ActivityIndicator, Image, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
-interface DiaryListProps {
-    mode?: 'preview' | 'full'  // preview = last 2 entries, full = all
-    filterDate?: string         // for calendar view: only show entries from this date
-}
 
-export default function DiaryList({ mode = 'preview', filterDate }: DiaryListProps) {
+export default function DiaryList({ mode = 'preview', filterDate }: {
+    mode?: 'preview' | 'full'
+    filterDate?: string
+}) {
 
     const { entries, setSelectedEntry, loading } = useAppContext()
 
     // filter by date if provided (calendar view)
     const filteredEntries = filterDate
-        ? entries.filter(e => e.created_at?.startsWith(filterDate))
+        ? entries.filter(e => {
+            if (!e.created_at) return false
+            const d = new Date(e.created_at)
+            const y = d.getFullYear()
+            const m = String(d.getMonth() + 1).padStart(2, '0')
+            const day = String(d.getDate()).padStart(2, '0')
+            return `${y}-${m}-${day}` === filterDate
+        })
         : entries
 
     // in preview mode, only show last 2
@@ -24,6 +30,10 @@ export default function DiaryList({ mode = 'preview', filterDate }: DiaryListPro
         : filteredEntries
 
     const groupedEntries = groupEntriesByDate(displayEntries)
+
+    console.log('filterDate received:', filterDate)
+    console.log('entry dates:', entries.map(e => e.created_at))
+    console.log('displayEntries:', displayEntries.length, 'filteredEntries:', filteredEntries.length)
 
     if (loading && entries.length === 0)
         return (
@@ -52,7 +62,7 @@ export default function DiaryList({ mode = 'preview', filterDate }: DiaryListPro
 
                     return (
                         <Pressable
-                            key={item.id} 
+                            key={item.id}
                             style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
                             onPress={() => setSelectedEntry(item)}
                         >

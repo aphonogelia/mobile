@@ -5,7 +5,7 @@ import Profile from '@/components/Profile'
 import Stats from '@/components/Stats'
 import { useAppContext } from '@/context/AppContext'
 import { colors, radius, spacing } from '@/utils/theme'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -13,9 +13,11 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function Diary() {
 
-  const { selectedEntry, setSelectedEntry } = useAppContext()
+  const { selectedEntry, setSelectedEntry, setCurrentView } = useAppContext()
 
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => { setCurrentView('home') }, [])
 
 
   return (
@@ -28,10 +30,11 @@ export default function Diary() {
 
       <SafeAreaView style={styles.safe}>
 
-        <Profile onProfileEdit={() => setShowForm(true)} />
+        <Profile/>
+
         <View style={styles.divider} />
 
-          <DiaryList mode="preview" />
+        <DiaryList mode="preview" />
 
         <View style={styles.divider} />
 

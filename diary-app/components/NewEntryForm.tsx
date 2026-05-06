@@ -15,7 +15,7 @@ type Props = {
 }
 
 const autoTitle = (content: string) =>
-    content.trim().replace(/\n+/g, ' ').slice(0, 17) + '...'
+    content.trim().replace(/\n+/g, ' ').slice(0, 30) + '...'
 
 export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
 

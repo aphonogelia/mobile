@@ -7,7 +7,6 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 're
 
 type MoodStat = {
     mood: string
-    count: number
     percentage: number
 }
 
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
     },
     info: {
         flex: 1,
-        flexDirection: 'row',   // 👈 put label, bar, percentage all in one line
+        flexDirection: 'row', 
         alignItems: 'center',
         gap: spacing.sm,
     },
@@ -111,7 +110,7 @@ const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         fontWeight: typography.weights.medium,
         color: colors.text.primary,
-        width: 80,              // fixed width so bars align
+        width: 80,  
     },
     barBg: {
         flex: 1,
@@ -123,11 +122,11 @@ const styles = StyleSheet.create({
     barFill: {
         height: '100%',
         borderRadius: radius.full,
-        backgroundColor: colors.brand.mid,
+        backgroundColor: colors.text.primary,
     },
     percentage: {
         fontSize: typography.sizes.xs,
-        color: colors.text.muted,
+        color: colors.text.primary,
         width: 36,
         textAlign: 'right',
     },
