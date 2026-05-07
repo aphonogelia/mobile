@@ -9,18 +9,17 @@ const MONTHS = [
     'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-const CELL_SIZE = 30
+const CELL_SIZE = 40
 
 export default function Cal() {
 
-    const { entries, setCurrentView, selectedDate, setSelectedDate } = useAppContext()
+    const { entries, selectedDate, setSelectedDate } = useAppContext()
 
     const [calendarMonth, setCalendarMonth] = useState(() => {
         const now = new Date()
         return new Date(now.getFullYear(), now.getMonth(), 1)
     })
 
-    useEffect(() => { setCurrentView('calendar') }, [])
 
     const entryDateSet = useMemo(() => {
         const set = new Set<string>()

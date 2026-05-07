@@ -6,6 +6,7 @@ import { Entry, NewEntry } from '../utils/types'
 interface UserProfile {
   userName: string | null
   avatarUrl: string | null
+  backgroundUrl: string | null
   entryCount: number
 }
 
@@ -21,10 +22,7 @@ interface AppContextType {
   setSelectedEntry: (entry: Entry | null) => void
   clearError: () => void
   profile: UserProfile | null
-  updateProfile: (updates: { userName?: string, avatarUrl?: string }) => Promise<void>
-  setError: (error: string | null) => void
-  currentView: 'home' | 'calendar'
-  setCurrentView: (view: 'home' | 'calendar') => void
+  updateProfile: (updates: { userName?: string, avatarUrl?: string, backgroundUrl?: string }) => Promise<void>
   selectedDate: Date | null
   setSelectedDate: (date: Date | null) => void
 }
@@ -39,13 +37,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userName, setUserName] = useState<string | null>(null)
   const [entryCount, setEntryCount] = useState<number>(0)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-  const [currentView, setCurrentView] = useState<'home' | 'calendar'>('home')
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
   const refreshEntries = async () => {
     setLoading(true)
     try {
       const data = await fetchEntries()
-      console.log('Entry fetched successfully')
+      console.log('Entry fetched successfully', data)
       setEntries(data)
       setError(null)
     } catch (err) {
@@ -58,8 +56,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const countEntry = async () => {
     try {
       const count = await fetchEntryCount()
-      setEntryCount(count)
+      if (count != 0)
+        setEntryCount(count)
     } catch (err) {
+      console.error('countEntry failed:', err)
       setError('Failed to fetch entry count')
     }
   }
@@ -91,12 +91,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const updated = await modifEntry(id, entry)
       setEntries(prev => prev.map(e => e.id === id ? updated : e))  // replace locally, no refetch
       setSelectedEntry(updated)  // keep selectedEntry in sync
+
     } catch {
       setError('Failed to update entry')
     }
   }
 
-  const updateProfile = async (updates: { userName?: string; avatarUrl?: string }) => {
+  const updateProfile = async (updates: { userName?: string; avatarUrl?: string; backgroundUrl?: string }) => {
     try {
       await editProfile({
         full_name: updates.userName,
@@ -104,6 +105,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       })
       if (updates.userName) setUserName(updates.userName)
       if (updates.avatarUrl) setAvatarUrl(updates.avatarUrl)
+      if (updates.backgroundUrl) setBackgroundUrl(updates.backgroundUrl)
     } catch {
       setError('Failed to update profile')
     }
@@ -114,12 +116,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url')
+        .select('full_name, avatar_url, background_url')
         .single()
 
       if (!error) {
         setUserName(data.full_name)
         setAvatarUrl(data.avatar_url)
+        setBackgroundUrl(data.background_url)
       }
     } catch {
       console.error('Failed to fetch name and avatar URL')
@@ -133,15 +136,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // entries accordingly
   useEffect(() => {
 
-    // handle already-logged-in user on app load
-    // supabase.auth.getSession().then(({ data: { session } }) => {
-    //   if (session) {
-    //     refreshEntries()
-    //     fetchNameURL()
-    //     countEntry()
-    //   }
-    // })
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
         refreshEntries()
@@ -152,6 +146,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setUserName(null)
         setEntryCount(0)
         setAvatarUrl(null)
+        setBackgroundUrl(null)
       }
     })
     return () => subscription.unsubscribe()
@@ -163,10 +158,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       addEntry, removeEntry, refreshEntries,
       selectedEntry, setSelectedEntry,
       clearError, updateEntry,
-      profile: { entryCount, userName, avatarUrl },
+      profile: { entryCount, userName, avatarUrl, backgroundUrl },
       updateProfile,
-      setError,
-      currentView, setCurrentView,
       selectedDate, setSelectedDate
 
     }}>

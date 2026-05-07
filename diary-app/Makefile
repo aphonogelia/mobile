@@ -39,6 +39,10 @@ studio:
 build:
 	npx expo run:android
 
+pics: 
+	adb push ~/goinfre/diary/diary-app/assets/images/* /sdcard/Pictures/  
+	adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Pictures/
+
 # Starts Metro bundler only — no recompile
 # Use this daily once APK is already installed
 dev:

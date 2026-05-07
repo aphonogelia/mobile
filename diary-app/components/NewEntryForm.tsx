@@ -27,7 +27,7 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
     const isSaving = useRef(false)
 
     const canSave = content.trim().length > 0
-    const mood = selectedMoods.length > 0 ? selectedMoods : undefined
+    const mood = selectedMoods
 
     const toggleMood = (id: MoodId) =>
         setSelectedMoods(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id])

@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Welcome to your Expo app
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -44,9 +44,45 @@ To learn more about developing your project with Expo, look at the following res
 <>
 
 
-## SUPABASE
+# Expo Go vs Dev Client
+## Expo Go
+A pre-built app made by Expo that runs your JS code. Think of it as a "sandbox" — it has a fixed set of built-in native modules.
+Limitations:
 
-# concept clé de Supabase : Row Level Security (RLS).
+## Can't add custom native modules
+Restricted URI schemes (your redirect URI after auth won't work because Expo Go uses its own exp:// scheme, not your app's custom scheme)
+That's exactly why your auth redirect broke — Supabase/Firebase/Auth0 etc. redirect back to something like mydiaryapp:// which Expo Go doesn't support
+
+
+## Dev Client (your case)
+A custom-compiled version of Expo Go — but built specifically for your app. It has your app's bundle ID, URI scheme, and any native modules you added.
+Benefits:
+
+Your custom URI scheme works (e.g. mydiaryapp://auth/callback)
+Supports any native library (camera, biometrics, etc.)
+Still has hot reload / fast refresh like Expo Go
+Feels the same to develop with, just took one extra build step
+
+
+## Why your auth broke in Expo Go specifically
+When your auth provider redirects after login, it calls something like:
+mydiaryapp://auth/callback?token=xxx
+Expo Go can't handle that because it doesn't know about mydiaryapp:// — only your compiled dev client does, since it registers that scheme at the native level.
+
+## In short
+                       Expo Go               Dev Client
+Setup               Scan QR, done     Must build with Xcode once
+Custom URI schemes      ❌                    ✅
+Custom native modules   ❌                    ✅
+Hot reload              ✅                    ✅
+Good for          Quick prototypes      Real apps with auth, native features
+
+Your diary app with auth = dev client is the right call. 
+
+
+# SUPABASE
+
+## concept clé de Supabase : Row Level Security (RLS).
 -- Exemple : un user ne voit que SES entrées
 ````
 CREATE POLICY "users see own entries"
@@ -55,7 +91,7 @@ FOR SELECT
 USING (auth.uid() = user_id);
 ````
 
-# create client supabase
+## create client supabase
 ````
 import { createClient } from '@supabase/supabase-js'
 
@@ -65,7 +101,7 @@ const supabaseAnonKey = process.env.SUPABASE_PUBLISHABLE_KEY!
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 ````
 
-# expo-auth-session vs Supabase OAuth
+## expo-auth-session vs Supabase OAuth
 ````
                     expo-auth-session   Supabase OAuth
 Client Secret       Exposed in app ⚠️   Stays on Supabase server ✅
@@ -153,32 +189,32 @@ When the user logs in, Supabase stores the session (JWT token) internally in the
 ## function vs trigger 
 In PostgreSQL (and therefore Supabase), a function is just a piece of logic stored in the database. It only runs if something explicitly calls it.
 
-# Function
+###  Function
 create function handle_new_user() ...
 Defines what to do
 Not executed automatically
-# Trigger
+###  Trigger
 create trigger ...
 after insert on auth.users
 Defines when to do it
 Calls the function automatically
 
 
-# Without trigger, your function just sits there.
+###  Without trigger, your function just sits there.
 Nothing happens when a user signs up:
 auth.users INSERT → no effect on profiles
 You would have to manually call it (which you typically can’t from the client for security reasons).
 
-# With trigger, You connect the two:
+###  With trigger, You connect the two:
 auth.users INSERT → trigger fires → function runs → profiles row created
 
-# Analogy
+###  Analogy
 Function = a recipe
 Trigger = “cook this recipe every time someone orders”
 Without the trigger, nobody ever cooks.
 
 
-# trigger for user id
+###  trigger for user id
 ```
 create or replace function set_user_id()
 returns trigger as $$

@@ -239,3 +239,8 @@ Plug it in via USB. Check it's detected:
 You should see your device listed.
 
 Then just run make build — Expo will detect your phone alongside the emulator and ask which one to install on. Pick your phone.
+
+
+
+
+Today i played Linxicon with Jakob. We explored his nazi card holder ascendants, and he tried unsuccessfully to tickle me. I had a lot of fun. 

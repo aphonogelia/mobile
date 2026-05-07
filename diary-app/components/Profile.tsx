@@ -1,268 +1,272 @@
 import { useAppContext } from '@/context/AppContext'
-import { uploadAvatar } from '@/utils/api'
+import { uploadAvatar, uploadBackground } from '@/utils/api'
 import { supabase } from '@/utils/supabase'
-import { colors, radius, spacing, typography } from '@/utils/theme'
+import { colors, radius, shadows, spacing, typography } from '@/utils/theme'
 import { Ionicons } from '@expo/vector-icons'
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
 import { useRef, useState } from 'react'
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-
-
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import Stats from './Stats'
 
 export default function Profile() {
+  const { profile, updateProfile } = useAppContext()
 
+  const [editingName, setEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState(profile?.userName ?? '')
+  const inputRef = useRef<TextInput>(null)
 
-    const { profile, updateProfile, currentView } = useAppContext()
-    console.log('Rendering Profile component', { currentView })
-    const bottomSheetRef = useRef<BottomSheet>(null)
-    const openSheet = () => bottomSheetRef.current?.expand()
-    const closeSheet = () => bottomSheetRef.current?.close()
-    const [view, setView] = useState<'menu' | 'name'>('menu')
-    const [nameInput, setNameInput] = useState(profile?.userName ?? '')
-    if (!profile) return null
+  if (!profile) return null
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
-        router.replace('/(auth)/landing')
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.replace('/(auth)/landing')
+  }
 
-    const handleChangePhoto = async () => {
-        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
-        if (!permission.granted) return
+  const pickImage = async (aspect: [number, number]) => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (!permission.granted) return null
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect,
+      quality: 0.7,
+    })
+    return result.canceled ? null : result.assets[0].uri
+  }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.5,
-        })
+  const handleChangePhoto = async () => {
+    const uri = await pickImage([1, 1])
+    if (!uri) return
+    const publicUrl = await uploadAvatar(uri)
+    await updateProfile({ avatarUrl: publicUrl })
+  }
 
-        if (!result.canceled) {
-            const uri = result.assets[0].uri
-            const publicUrl = await uploadAvatar(uri)
-            await updateProfile({ avatarUrl: publicUrl })
-            closeSheet()
-        }
-    }
+  const handleChangeBackground = async () => {
+    const uri = await pickImage([9, 16])
+    if (!uri) return
+    const publicUrl = await uploadBackground(uri)
+    await updateProfile({ backgroundUrl: publicUrl })
+  }
 
-    return (
-        <>
-            <View style={styles.header}>
-                {/* Left: avatar */}
-                <Image
-                    source={profile.avatarUrl
-                        ? { uri: profile.avatarUrl }
-                        : require('@/assets/images/girl.png')
-                    }
-                    style={styles.avatar}
-                />
+  const startEditingName = () => {
+    setEditingName(true)
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }
 
-                {/* Center: name + entry count */}
-                <View style={styles.info}>
-                    <Text style={styles.userName} numberOfLines={1}>
-                        {profile.userName ?? 'Nameless User'}
-                    </Text>
+  const handleSaveName = async () => {
+    if (nameInput.trim()) await updateProfile({ userName: nameInput.trim() })
+    setEditingName(false)
+  }
 
-                    <Text style={styles.entryCount}>
-                        {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
-                    </Text>
+  const handleCancelName = () => {
+    setNameInput(profile.userName ?? '')
+    setEditingName(false)
+  }
 
-                </View>
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* ── Hero ── */}
+      <View style={styles.hero}>
 
-                {/* Right: actions */}
-                <View style={styles.actions}>
-                    <Pressable
-                        style={({ pressed }) => [styles.navBtn, pressed && styles.logoutBtnPressed]}
-                        onPress={() => router.replace(currentView === 'home' ? '/(tabs)/calendar' : '/(tabs)/diary')}
-                        hitSlop={8}
-                    >
-                        {currentView === 'home'
-                            ? <Ionicons name="calendar-outline" size={14} color={colors.text.primary} />
-                            : <Ionicons name="home-outline" size={14} color={colors.text.primary} />
-                        }
-                        <Text style={styles.logoutText}>
-                            {currentView === 'home' ? 'Calendar' : 'Home'}
-                        </Text>
-                    </Pressable>
-
-                    <View style={styles.iconRow}>
-                        <Pressable style={styles.iconBtn} onPress={openSheet} hitSlop={8}>
-                            <Ionicons name="settings-outline" size={16} color={colors.text.primary} />
-                        </Pressable>
-                        <Pressable style={styles.iconBtn} onPress={handleLogout} hitSlop={8}>
-                            <Ionicons name="log-out-outline" size={16} color={colors.text.primary} />
-                        </Pressable>
-                    </View>
-                </View>
+        {/* Avatar */}
+        <Pressable onPress={handleChangePhoto} hitSlop={4}>
+          {({ pressed }) => (
+            <View style={[styles.avatarWrapper, pressed && styles.pressed]}>
+              <Image
+                source={
+                  profile.avatarUrl
+                    ? { uri: profile.avatarUrl }
+                    : require('@/assets/images/girl.png')
+                }
+                style={styles.avatar}
+              />
+              <View style={styles.editBadge}>
+                <Ionicons name="camera-outline" size={13} color={colors.text.primary} />
+              </View>
             </View>
+          )}
+        </Pressable>
 
-            <BottomSheet
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={view === 'name' ? ['55%'] : ['10%']}
-                keyboardBehavior="extend"      // sheet extends up with keyboard
-                keyboardBlurBehavior="restore" // snaps back down when keyboard closes
-                android_keyboardInputMode="adjustResize"
-                enablePanDownToClose
-                onClose={() => setView('menu')}
-                backdropComponent={(props: any) => (
-                    <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} />
-                )}
-                style={{ zIndex: 999 }}
-                containerStyle={{ zIndex: 999, elevation: 999 }}
-                backgroundStyle={{ backgroundColor: colors.brand.deep, borderColor: colors.border.light, borderWidth: 1 }}
-                handleIndicatorStyle={{ backgroundColor: colors.text.muted }}
-            >
-                <BottomSheetView style={styles.sheetContent}>
-                    {view === 'menu' ? (
-                        <>
-                            <Pressable style={styles.sheetOption} onPress={() => setView('name')}>
-                                <Text style={styles.sheetOptionText}>Change my name</Text>
-                            </Pressable>
-                            <Pressable style={styles.sheetOption} onPress={handleChangePhoto}>
-                                <Text style={styles.sheetOptionText}>Change my picture</Text>
-                            </Pressable>
-                        </>
-                    ) : (
-                        <>
-                            <TextInput
-                                style={styles.input}
-                                value={nameInput}
-                                onChangeText={setNameInput}
-                                placeholder="Your name"
-                                placeholderTextColor={colors.text.muted}
-                                autoFocus
-                            />
-                            <Pressable style={styles.sheetOption} onPress={async () => {
-                                await updateProfile({ userName: nameInput })
-                                closeSheet()
-                            }}>
-                                <Text style={styles.sheetOptionText}>Save</Text>
-                            </Pressable>
-                        </>
-                    )}
-                </BottomSheetView>
-            </BottomSheet>
-        </>
-    )
+        {/* Name row */}
+        {editingName ? (
+          <View style={styles.nameEditRow}>
+            <TextInput
+              ref={inputRef}
+              style={styles.nameInput}
+              value={nameInput}
+              onChangeText={setNameInput}
+              placeholder="Enter your name"
+              placeholderTextColor={colors.text.muted}
+              returnKeyType="done"
+              onSubmitEditing={handleSaveName}
+            />
+            <Pressable onPress={handleSaveName} hitSlop={8}>
+              <Ionicons name="checkmark" size={18} color={colors.accent.yellow} />
+            </Pressable>
+            <Pressable onPress={handleCancelName} hitSlop={8}>
+              <Ionicons name="close" size={18} color={colors.text.muted} />
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.nameRow}>
+            <Text style={styles.userName} numberOfLines={1}>
+              {profile.userName ?? 'Nameless User'}
+            </Text>
+            <Pressable onPress={startEditingName} hitSlop={8}>
+              <Ionicons name="pencil-outline" size={14} color={colors.text.muted} />
+            </Pressable>
+          </View>
+        )}
+
+        {/* Entry count */}
+        <Text style={styles.entryCount}>
+          {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
+        </Text>
+
+        {/* ── Action buttons ── */}
+        <View style={styles.actions}>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
+            onPress={handleChangeBackground}
+          >
+            <Ionicons name="image-outline" size={14} color={colors.text.secondary} />
+            <Text style={styles.actionBtnText}>Background</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnDanger, pressed && styles.actionBtnPressed]}
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={14} color={colors.semantic.error} />
+            <Text style={[styles.actionBtnText, styles.actionBtnTextDanger]}>Log out</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* ── Stats ── */}
+      <Stats />
+    </ScrollView>
+  )
 }
 
-
-
 const styles = StyleSheet.create({
-    iconRow: {
-        flexDirection: 'row',
-        gap: spacing.xs,
-    },
-    navBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 6,
-        borderRadius: radius.full,
-        backgroundColor: colors.surface.glass,
-        borderWidth: 1,
-        borderColor: colors.border.light,
-        width: 80,
-        justifyContent: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        gap: spacing.sm,
-    },
-    avatar: {
-        width: 48,
-        height: 48,
-        borderRadius: radius.full,
-        borderWidth: 2,
-        borderColor: colors.border.medium,
-    },
-    info: {
-        flex: 1,
-    },
-    userName: {
-        fontSize: typography.sizes.md,
-        fontWeight: typography.weights.semibold,
-        color: colors.text.primary,
-        letterSpacing: 0.3,
-    },
-    entryCount: {
-        fontSize: typography.sizes.xs,
-        color: colors.text.muted,
-        marginTop: 1,
-    },
-    actions: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: spacing.xs,
-    },
-    iconBtn: {
-        width: 32,
-        height: 32,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    iconBtnText: {
-        fontSize: 14,
-    },
-    logoutBtn: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: 6,
-        borderRadius: radius.full,
-        backgroundColor: colors.surface.glass,
-        borderWidth: 1,
-        borderColor: colors.border.light,
-        width: 67,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    logoutBtnPressed: {
-        backgroundColor: colors.surface.glassHover,
-    },
-    logoutText: {
-        fontSize: typography.sizes.xs,
-        fontWeight: typography.weights.semibold,
-        color: colors.text.primary,
-        letterSpacing: 0.5,
-    },
-    sheetContent: {
-        flexDirection: 'row',
-        padding: spacing.md,
-        gap: spacing.sm,
-    },
-    sheetOption: {
-        flex: 1,
-        paddingVertical: 14,
-        // width: '100%',
-        // height: '150%',
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.md,
-        backgroundColor: colors.border.light,
-        borderWidth: 1,
-        borderColor: colors.border.light,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    sheetOptionText: {
-        fontSize: typography.sizes.lg,
-        color: colors.text.primary,
-        fontWeight: typography.weights.medium,
-        textAlign: 'center',
-    },
-    input: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: colors.border.medium,
-        borderRadius: radius.md,
-        padding: spacing.md,
-        color: colors.text.primary,
-        fontSize: typography.sizes.md,
-        backgroundColor: colors.surface.glass,
-    },
+  container: { flex: 1 },
+  content: { flexGrow: 1, paddingBottom: spacing.xl },
+
+  // ── Hero ──
+  hero: {
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    gap: spacing.xs,
+  },
+
+  avatarWrapper: { position: 'relative', marginBottom: spacing.sm },
+  pressed: { opacity: 0.8 },
+  avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: radius.full,
+    borderWidth: 2,
+    borderColor: colors.border.medium,
+    ...shadows.card,
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 26,
+    height: 26,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface.dark,
+    borderWidth: 1,
+    borderColor: colors.border.medium,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // name display
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  userName: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    letterSpacing: 0.2,
+    textShadowColor: 'rgba(0,0,0,0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+
+  // name editing
+  nameEditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  nameInput: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.accent.yellow,
+    paddingVertical: 2,
+    minWidth: 120,
+    letterSpacing: 0.2,
+  },
+
+  entryCount: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
+    marginTop: 0,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+
+  // ── Actions ──
+  actions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface.dark,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+  },
+  actionBtnDanger: {
+    borderColor: 'rgba(255, 107, 138, 0.35)',
+    backgroundColor: 'rgba(255, 107, 138, 0.12)',
+  },
+  actionBtnPressed: { opacity: 0.65 },
+  actionBtnText: {
+    fontSize: typography.sizes.xs,
+    color: colors.text.secondary,
+    fontWeight: typography.weights.medium,
+    letterSpacing: 0.3,
+  },
+  actionBtnTextDanger: { color: colors.semantic.error },
 })

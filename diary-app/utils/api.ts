@@ -99,8 +99,8 @@ export async function fetchEntryCount(): Promise<number> {
     throw error
   }
 
-  console.log('✅ fetchEntryCount success:', data.total_entries)
-  return data.total_entries
+  console.log('✅ fetchEntryCount success:', data?.total_entries ?? 0)
+   return data?.total_entries ?? 0
 }
 
 export async function editProfile(updates: { full_name?: string; avatar_url?: string }): Promise<void> {
@@ -162,3 +162,41 @@ export async function uploadAvatar(uri: string): Promise<string> {
 
 
 
+
+
+
+export async function uploadBackground(uri: string): Promise<string> {
+  const ext = uri.split('.').pop()
+  const { data: { session } } = await supabase.auth.getSession()
+  const path = `${session?.user?.id}/background.${ext}`
+   console.log('🔐 uploadBackground session:', uri)
+  //   const response = await fetch(uri)
+  //   const blob = await response.blob() // binary large object - but failing on android,
+  //  so we switch to expo-file-system
+  // ✅ Read file as base64, then convert to ArrayBuffer
+  const base64 = await FileSystem.readAsStringAsync(uri, {
+    encoding: 'base64',  // ✅ use string literal instead
+  })
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+
+  const contentType = ext === 'png' ? 'image/png' : 'image/jpeg'
+
+  const { error } = await supabase.storage
+    .from('backgrounds')
+    .upload(path, bytes.buffer, {
+      contentType,
+      upsert: true,
+    })
+
+  if (error) {
+    console.error('❌ uploadBackground error:', error.message)
+    throw error
+  }
+
+  const { data } = supabase.storage.from('backgrounds').getPublicUrl(path)
+  return `${data.publicUrl}?t=${Date.now()}` // add timestamp to prevent caching
+}

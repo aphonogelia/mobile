@@ -2,7 +2,7 @@
 export interface Entry {
   id: string
   title: string
-  mood?: MoodId[]
+  mood: MoodId[]
   content: string
   created_at: string // ISO timestamp
   updated_at?: string

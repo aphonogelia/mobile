@@ -292,15 +292,17 @@ adb reboot — reboot the emulator
 
 
 
-adb push ~/Pictures/tiger.png /sdcard/Pictures/  
+adb push ~/goinfre/diary/diary-app/assets/images/* /sdcard/Pictures/  
 adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
-  -d file:///sdcard/Pictures/photo.jpg
+  -d file:///sdcard/Pictures/
+
 adb shell "cd /sdcard/Pictures  && ls"
-The files are pushed to /sdcard/Pictures/ — let's verify:
-bash
-adb shell ls /sdcard/Pictures/
-If they show up there but you can't see them in the Gallery app, the media scanner hasn't indexed them yet. Force a rescan:
-bash
-adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Pictures/
+
+
 
 The ?t=${Date.now()} cache buster is a classic gotcha with Supabase storage (and S3-style storage in general) — since the file path stays the same on upsert, the CDN and React Native's image cache both think nothing changed.
+
+
+
+aphonogelia
+SesAilesDeGeant
