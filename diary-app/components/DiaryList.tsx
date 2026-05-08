@@ -2,7 +2,7 @@ import { useAppContext } from '@/context/AppContext'
 import { groupEntriesByDate } from '@/utils/function'
 import { colors, radius, spacing, typography } from '@/utils/theme'
 import { MOODS } from '@/utils/types'
-import { ActivityIndicator, Image, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
 export default function DiaryList({ filterDate }: { filterDate?: string }) {
 
@@ -10,13 +10,13 @@ export default function DiaryList({ filterDate }: { filterDate?: string }) {
 
   const displayEntries = filterDate
     ? entries.filter(e => {
-        if (!e.created_at) return false
-        const d = new Date(e.created_at)
-        const y = d.getFullYear()
-        const m = String(d.getMonth() + 1).padStart(2, '0')
-        const day = String(d.getDate()).padStart(2, '0')
-        return `${y}-${m}-${day}` === filterDate
-      })
+      if (!e.created_at) return false
+      const d = new Date(e.created_at)
+      const y = d.getFullYear()
+      const m = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${y}-${m}-${day}` === filterDate
+    })
     : entries
 
   const groupedEntries = groupEntriesByDate(displayEntries)
@@ -63,11 +63,8 @@ export default function DiaryList({ filterDate }: { filterDate?: string }) {
             {selectedMoods.length > 0 && (
               <View style={styles.moodRow}>
                 {selectedMoods.map(m => (
-                  <Image key={m.id} source={m.icon} style={styles.moodIcon} />
+                  <Text key={m.id} style={styles.moodLabel}>{m.label}</Text>
                 ))}
-                {selectedMoods.length === 1 && (
-                  <Text style={styles.moodLabel}>{selectedMoods[0].label}</Text>
-                )}
               </View>
             )}
           </Pressable>
@@ -85,7 +82,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.bold,
-    color: colors.text.muted,
+    color: colors.text.secondary,
     marginTop: spacing.md,
     marginBottom: spacing.xs,
     textTransform: 'uppercase',
@@ -98,7 +95,9 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.cardBorder,
     padding: spacing.sm,
   },
-  cardPressed: { backgroundColor: colors.surface.glassHover },
+  cardPressed: { 
+    backgroundColor: colors.surface.glassHover 
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -116,11 +115,14 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     marginLeft: spacing.sm,
   },
-  moodRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  moodIcon: { width: 15, height: 15 },
+  moodRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 6 
+  },
   moodLabel: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
+    fontSize: typography.sizes.xs,
+    fontWeight: 300,
     color: colors.text.secondary,
   },
 })

@@ -42,27 +42,25 @@ export const colors = {
     glow: '#82F9FD',
   },
 
-  // Surfaces — translucent, sit on top of the background image
   surface: {
-    glass: 'rgba(255, 255, 255, 0.12)',       // subtle card
-    glassHover: 'rgba(255, 255, 255, 0.28)',
-    card: 'rgba(255, 255, 255, 0.22)',         // standard card
-    cardBorder: 'rgba(255, 255, 255, 0.38)',
-    dark: 'rgba(1, 20, 60, 0.45)',             // dark card
-    darkBorder: 'rgba(255, 255, 255, 0.20)',
-    solid: 'rgba(255, 255, 255, 0.95)',        // opaque card (highest contrast)
-    solidBorder: 'rgba(255, 255, 255, 0.40)',
+    glass: 'rgba(0, 0, 0, 0.40)',
+    glassHover: 'rgba(0, 0, 0, 0.60)',
+    card: 'rgba(0, 0, 0, 0.62)',           // dark enough to read on any background
+    cardBorder: 'rgba(255, 255, 255, 0.14)',
+    dark: 'rgba(0, 0, 0, 0.78)',
+    darkBorder: 'rgba(255, 255, 255, 0.12)',
+    solid: 'rgba(15, 15, 15, 0.95)',
+    solidBorder: 'rgba(255, 255, 255, 0.20)',
   },
 
   // Text — for use on top of the background image
   text: {
     primary: '#FFFFFF',
-    secondary: '#CBD8E8',
-    muted: '#7A9CC4',
-    onLight: '#012A6B',       // text on solid/white surfaces
+    secondary: '#D0E4FF',        // was CBD8E8
+    muted: '#90AECE',            // was 7A9CC4 — slightly brighter
+    onLight: '#012A6B',
     onLightMuted: '#3A5F99',
   },
-
   // Accent — buttons, CTAs, highlights
   accent: {
     white: '#FFFFFF',         // primary button

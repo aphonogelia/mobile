@@ -172,6 +172,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.md,
     gap: spacing.xs,
+    borderRadius: radius.lg,
+    margin: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
 
   avatarWrapper: { position: 'relative', marginBottom: spacing.sm },

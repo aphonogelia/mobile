@@ -46,21 +46,22 @@ export default function Stats() {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Mood Breakdown</Text>
-      <View style={styles.grid}>
-        {stats.map(item => {
+      <View style={styles.card}>
+        {stats.map((item, index) => {
           const mood = MOODS.find(m => m.id === item.mood)
           if (!mood) return null
 
           return (
-            <View key={item.mood} style={styles.card}>
-              <View style={styles.cardTop}>
+            <View key={item.mood}>
+              {index > 0 && <View style={styles.divider} />}
+              <View style={styles.row}>
                 <Image source={mood.icon} style={styles.icon} />
-              <Text style={styles.count}>{item.count}×</Text>
-              <Text style={styles.label} numberOfLines={1}>{mood.label}</Text>
+                <Text style={styles.label} numberOfLines={1}>{mood.label}</Text>
+                <Text style={styles.count}>{item.count}×</Text>
+                <View style={styles.barBg}>
+                  <View style={[styles.barFill, { width: `${item.percentage}%` }]} />
+                </View>
                 <Text style={styles.percentage}>{item.percentage}%</Text>
-              </View>
-              <View style={styles.barBg}>
-                <View style={[styles.barFill, { width: `${item.percentage}%` }]} />
               </View>
             </View>
           )
@@ -69,7 +70,6 @@ export default function Stats() {
     </View>
   )
 }
-
 const styles = StyleSheet.create({
   centered: {
     padding: spacing.lg,
@@ -91,51 +91,61 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     paddingHorizontal: 2,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
+
+  // single card
   card: {
-    width: '48.5%',
-    backgroundColor: colors.surface.card,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.surface.cardBorder,
+    backgroundColor: 'rgba(0, 0, 0, 0.62)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    gap: 3,
   },
-  cardTop: {
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    marginHorizontal: 2,
+  },
+
+  // each mood row
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: spacing.xs,
+    paddingVertical: 4,
   },
-  icon: { width: 22, height: 22 },
-  percentage: {
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.bold,
-    color: colors.text.primary,
-  },
+  icon: { width: 20, height: 20 },
   label: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
+    fontWeight: typography.weights.medium,
+    width: 80,
+  },
+  count: {
     fontSize: typography.sizes.xs,
     color: colors.text.muted,
-    fontWeight: typography.weights.medium,
+    textAlign: 'right',
+    paddingRight: spacing.sm,
+    width: 30,
   },
   barBg: {
-    height: 3,
+    flex: 1,
+    height: 4,
     borderRadius: radius.full,
-    backgroundColor: colors.surface.glass,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     overflow: 'hidden',
-    marginVertical: 2,
   },
   barFill: {
     height: '100%',
     borderRadius: radius.full,
-    backgroundColor: colors.text.primary,
+    backgroundColor: 'rgba(255, 255, 255, 0.55)', 
   },
-  count: {
-    fontSize: 10,
-    color: colors.text.muted,
+  percentage: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    width: 50,
+    textAlign: 'right',
+    paddingLeft: spacing.sm,
   },
 })

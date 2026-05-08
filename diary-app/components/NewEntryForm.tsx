@@ -156,7 +156,7 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                                 onPress={handleSave}
                                 disabled={!canSave || isSaving.current}
                             >
-                                <Text style={styles.fabIcon}>↑</Text>
+                                <Text style={styles.fabIcon}>↵</Text>
                             </Pressable>
                         </KeyboardAvoidingView>
                     </View>
@@ -292,5 +292,5 @@ const styles = StyleSheet.create({
     },
     fabDisabled: { backgroundColor: '#A0BDE8' },
     fabPressed: { transform: [{ scale: 0.94 }] },
-    fabIcon: { fontSize: 22, color: '#fff', fontWeight: '700' },
+    fabIcon: { fontSize: 30, color: '#fff', fontWeight: '700' },
 })
