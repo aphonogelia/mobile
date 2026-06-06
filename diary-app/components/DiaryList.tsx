@@ -1,7 +1,7 @@
 import { useAppContext } from '@/context/AppContext'
 import { groupEntriesByDate } from '@/utils/function'
 import { colors, fontFamilies, radius, spacing, typography } from '@/utils/theme'
-import { Entry, MOODS, MoodId, CATEGORY_COLORS, MoodCategory } from '@/utils/types'
+import { MOODS, CATEGORY_COLORS, MoodCategory } from '@/utils/types'
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
 export default function DiaryList({ filterDate }: { filterDate?: string }) {

@@ -35,7 +35,7 @@ export const colors = {
   // Brand — background image colors, do not use as UI surfaces
   brand: {
     deep: '#00245acb',
-    mid: '#b2d1ffcb',
+    mid: '#86aadb',
     glow: '#4a93ff',
   },
 

@@ -9,7 +9,7 @@ export interface Entry {
 }
 
 export const CATEGORY_COLORS = {
-  uplifting: '#f7e927',
+  uplifting: '#d4b321',
   calm: '#fffab2',
   low: '#f899c0',
   activated: '#fc5097',
