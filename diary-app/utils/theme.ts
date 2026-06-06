@@ -4,10 +4,7 @@
  */
 
 import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
+    
 
 export const Fonts = Platform.select({
   ios: {
@@ -37,50 +34,39 @@ export const Fonts = Platform.select({
 export const colors = {
   // Brand — background image colors, do not use as UI surfaces
   brand: {
-    deep: '#014DB4',
-    mid: '#09ABE8',
-    glow: '#82F9FD',
+    deep: '#b88804',
+    mid: '#ffc320',
+    glow: '#b99a43',
   },
 
   surface: {
-    glass: 'rgba(0, 0, 0, 0.40)',
-    glassHover: 'rgba(0, 0, 0, 0.60)',
-    card: 'rgba(0, 0, 0, 0.62)',           // dark enough to read on any background
-    cardBorder: 'rgba(255, 255, 255, 0.14)',
-    dark: 'rgba(0, 0, 0, 0.78)',
-    darkBorder: 'rgba(255, 255, 255, 0.12)',
-    solid: 'rgba(15, 15, 15, 0.95)',
-    solidBorder: 'rgba(255, 255, 255, 0.20)',
+    glass: 'rgba(255, 255, 255, 0.06)',
+    glassHover: 'rgba(255, 255, 255, 0.10)',
+    card: 'rgba(255, 255, 255, 0.045)',
+    cardBorder: 'rgba(255, 255, 255, 0.12)',
+    dark: 'rgba(3, 8, 16, 0.72)',
+    darkBorder: 'rgba(255, 255, 255, 0.10)',
+    solid: 'rgba(7, 10, 16, 0.96)',
+    solidBorder: 'rgba(255, 255, 255, 0.16)',
   },
 
   // Text — for use on top of the background image
   text: {
     primary: '#FFFFFF',
-    secondary: '#D0E4FF',        // was CBD8E8
-    muted: '#90AECE',            // was 7A9CC4 — slightly brighter
-    onLight: '#012A6B',
-    onLightMuted: '#3A5F99',
+    secondary: '#ffc320',        // was CBD8E8
+    muted: '#f7dc95', 
   },
   // Accent — buttons, CTAs, highlights
   accent: {
-    white: '#FFFFFF',         // primary button
-    ghost: '#E8F4FF',         // ghost / secondary button
-    yellow: '#FFD166',        // warm highlight
-    coral: '#FF6B8A',         // destructive / emotional
+    primary: '#c8a96e',
+    error: '#ff6b8a',
   },
 
-  // Semantic
-  semantic: {
-    success: '#00E5A0',
-    warning: '#FFD166',
-    error: '#FF6B8A',
-  },
 
   // Borders
   border: {
     light: 'rgba(255, 255, 255, 0.20)',
     medium: 'rgba(255, 255, 255, 0.30)',
-    dark: 'rgba(1, 20, 60, 0.20)',
   },
 } as const
 
@@ -112,9 +98,16 @@ export const spacing = {
 
 export const radius = {
   sm: 8,
-  md: 12,
+  md: 14,
   lg: 16,
   full: 999,
+} as const
+
+export const fontFamilies = {
+  body: 'DMSans_400Regular',
+  medium: 'DMSans_500Medium',
+  bold: 'DMSans_700Bold',
+  heading: 'DMSerifDisplay_400Regular',
 } as const
 
 export const shadows = {

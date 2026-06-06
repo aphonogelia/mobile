@@ -5,6 +5,7 @@ import {
     Alert, Keyboard, View, Text, TextInput, Pressable,
     Modal, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Image,
 } from 'react-native'
+import { colors, fontFamilies } from '@/utils/theme'
 
 
 
@@ -47,14 +48,14 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
         } else {
             resetForm()
         }
-    }, [visible])
+    }, [visible, editEntry])
 
     useEffect(() => {
         if (error) {
             Alert.alert('Error', error)
             clearError()
         }
-    }, [error])
+    }, [error, clearError])
 
     const handleSave = async () => {
         console.log('handleSave called, isSaving:', isSaving.current)
@@ -96,7 +97,7 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                         <TextInput
                             style={styles.titleInput}
                             placeholder="Title"
-                            placeholderTextColor="#8BAAD4"
+                            placeholderTextColor="#ffffff"
                             maxLength={80}
                             value={title}
                             onChangeText={setTitle}
@@ -121,7 +122,6 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                                                     style={[styles.moodBtn, isSelected && styles.moodBtnSelected]}
                                                     onPress={() => toggleMood(m.id as MoodId)}
                                                 >
-                                                    <Image source={m.icon} style={[styles.moodBtnIcon, !isSelected && styles.moodBtnIconUnselected]} />
                                                     <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected]}>{m.label}</Text>
                                                 </Pressable>
                                             )
@@ -150,15 +150,15 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                             />
                         </ScrollView>
 
-                        <KeyboardAvoidingView style={styles.kavFab} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                            <Pressable
-                                style={({ pressed }) => [styles.fab, !canSave && styles.fabDisabled, pressed && styles.fabPressed]}
-                                onPress={handleSave}
-                                disabled={!canSave || isSaving.current}
-                            >
-                                <Text style={styles.fabIcon}>↵</Text>
-                            </Pressable>
-                        </KeyboardAvoidingView>
+                        <Pressable
+                            style={({ pressed }) => [styles.fab, !canSave && styles.fabDisabled, pressed && styles.fabPressed]}
+                            onPress={handleSave}
+                            disabled={!canSave || isSaving.current}
+                        >
+                            <View style={styles.fabIconWrapper}>
+                                <Text style={styles.fabIcon}>✓</Text>
+                            </View>
+                        </Pressable>
                     </View>
                 </KeyboardAvoidingView>
             </Pressable>
@@ -166,18 +166,16 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
     )
 }
 
-// styles unchanged
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        backgroundColor: '#F0F5FF',
+        backgroundColor: 'rgba(4, 8, 16, 0.96)',
     },
 
     handle: {
         width: 36, height: 4,
-        backgroundColor: '#C2D4EE',
+        backgroundColor: 'rgba(255, 255, 255, 0.18)',
         borderRadius: 2,
         alignSelf: 'center',
         marginTop: 12,
@@ -194,24 +192,24 @@ const styles = StyleSheet.create({
     },
     dateLabel: {
         fontSize: 11,
-        color: '#5A7FB5',
-        fontWeight: '700',
+        color: colors.text.muted,
+        fontFamily: fontFamilies.medium,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
     closeBtn: {
         width: 30, height: 30,
         borderRadius: 999,
-        backgroundColor: '#DDE8F7',
+        backgroundColor: colors.surface.card,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    closeBtnText: { fontSize: 12, color: '#3A6199', fontWeight: '700' },
+    closeBtnText: { fontSize: 12, color: colors.text.primary, fontFamily: fontFamilies.bold },
 
     titleInput: {
         fontSize: 22,
-        fontWeight: '700',
-        color: '#0A1F3D',
+        fontFamily: fontFamilies.heading,
+        color: colors.text.primary,
         letterSpacing: -0.3,
         paddingHorizontal: 18,
         paddingVertical: 8,
@@ -220,15 +218,11 @@ const styles = StyleSheet.create({
 
     divider: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: '#C2D4EE',
+        backgroundColor: colors.surface.cardBorder,
         marginHorizontal: 18,
         flexShrink: 0,
     },
-    kavFab: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-    },
+
     moodScroll: {
         flexShrink: 0,
         flexGrow: 0,
@@ -247,18 +241,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 9,
         paddingVertical: 5,
         borderRadius: 10,
-        backgroundColor: '#E4EDFA',
+        backgroundColor: colors.surface.card,
         borderWidth: 1,
-        borderColor: '#C2D4EE',
+        borderColor: colors.surface.cardBorder,
     },
     moodBtnSelected: {
-        backgroundColor: '#D0E2FF',
-        borderColor: '#014DB4',
+        backgroundColor: 'rgba(200, 169, 110, 0.12)',
+        borderColor: colors.accent.primary,
     },
     moodBtnIcon: { width: 14, height: 14 },
     moodBtnIconUnselected: { opacity: 0.45 },
-    moodBtnLabel: { fontSize: 11, fontWeight: '600', color: '#4A6FA5' },
-    moodBtnLabelSelected: { color: '#014DB4' },
+    moodBtnLabel: { fontSize: 11, fontFamily: fontFamilies.medium, color: colors.text.secondary },
+    moodBtnLabelSelected: { color: colors.accent.primary },
     bodyScroll: {
         flex: 1,
     },
@@ -270,10 +264,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         paddingTop: 12,
         fontSize: 16,
-        color: '#1A2E44',
+        color: colors.text.primary,
         lineHeight: 26,
         textAlignVertical: 'top',
-        minHeight: 300,   // fallback floor so it always looks full
+        minHeight: 300,
     },
     fab: {
         position: 'absolute',
@@ -281,16 +275,35 @@ const styles = StyleSheet.create({
         right: 24,
         width: 52, height: 52,
         borderRadius: 999,
-        backgroundColor: '#014DB4',
+        backgroundColor: colors.accent.primary,
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 6,
-        shadowColor: '#001433',
+        shadowColor: colors.accent.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowRadius: 10,
     },
-    fabDisabled: { backgroundColor: '#A0BDE8' },
+    fabDisabled: {
+        backgroundColor: colors.accent.primary,
+        opacity: 0.45,
+        elevation: 0,
+    },
     fabPressed: { transform: [{ scale: 0.94 }] },
-    fabIcon: { fontSize: 30, color: '#fff', fontWeight: '700' },
+    fabIconWrapper: {
+        width: 52,
+        height: 52,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // Nudge to optically center the ✓ glyph
+        marginTop: Platform.OS === 'ios' ? 1 : 0,
+    },
+    fabIcon: {
+        fontSize: 22,
+        color: '#1A140B',
+        fontFamily: fontFamilies.bold,
+        includeFontPadding: false,
+        textAlignVertical: 'center',
+        lineHeight: 22,
+    },
 })

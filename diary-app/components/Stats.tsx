@@ -1,9 +1,9 @@
 import { useAppContext } from '@/context/AppContext'
 import { moodStats } from '@/utils/api'
-import { colors, radius, spacing, typography } from '@/utils/theme'
+import { colors, fontFamilies, radius, spacing, typography } from '@/utils/theme'
 import { MOODS } from '@/utils/types'
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 
 type MoodStat = {
   mood: string
@@ -45,7 +45,7 @@ export default function Stats() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Mood Breakdown</Text>
+      <Text style={styles.sectionHeading}>Mood breakdown</Text>
       <View style={styles.card}>
         {stats.map((item, index) => {
           const mood = MOODS.find(m => m.id === item.mood)
@@ -55,12 +55,18 @@ export default function Stats() {
             <View key={item.mood}>
               {index > 0 && <View style={styles.divider} />}
               <View style={styles.row}>
-                <Image source={mood.icon} style={styles.icon} />
-                <Text style={styles.label} numberOfLines={1}>{mood.label}</Text>
-                <Text style={styles.count}>{item.count}×</Text>
-                <View style={styles.barBg}>
-                  <View style={[styles.barFill, { width: `${item.percentage}%` }]} />
+                {/* Label + count */}
+                <View style={styles.labelGroup}>
+                  <Text style={styles.label} numberOfLines={1}>{mood.label}</Text>
+                  <Text style={styles.count}>{item.count}×</Text>
                 </View>
+
+                {/* Progress bar */}
+                <View style={styles.barTrack}>
+                  <View style={[styles.barFill, { width: `${item.percentage}%` as any }]} />
+                </View>
+
+                {/* Percentage */}
                 <Text style={styles.percentage}>{item.percentage}%</Text>
               </View>
             </View>
@@ -70,82 +76,92 @@ export default function Stats() {
     </View>
   )
 }
+
 const styles = StyleSheet.create({
   centered: {
     padding: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  errorText: { color: colors.semantic.error, fontSize: typography.sizes.sm },
+  errorText: { color: colors.accent.error, fontSize: typography.sizes.sm },
   emptyText: { color: colors.text.muted, fontSize: typography.sizes.sm },
 
   container: {
-    padding: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
   },
-  heading: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.semibold,
+
+  sectionHeading: {
+    fontSize: typography.sizes.xs,
+    fontFamily: fontFamilies.medium,
     color: colors.text.muted,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: spacing.sm,
     paddingHorizontal: 2,
   },
 
-  // single card
+  // card wrapper
   card: {
     borderRadius: radius.md,
-    borderWidth: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.62)',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    paddingHorizontal: spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: colors.surface.card,
+    borderColor: colors.surface.cardBorder,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
+
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
-    marginHorizontal: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
 
   // each mood row
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: 4,
+    paddingVertical: 10,
+    gap: spacing.sm,
   },
-  icon: { width: 20, height: 20 },
+
+  // left: label + count stacked vertically
+  labelGroup: {
+    width: 88,
+    flexShrink: 0,
+  },
   label: {
-    fontSize: typography.sizes.sm,
-    color: colors.text.secondary,
-    fontWeight: typography.weights.medium,
-    width: 80,
+    fontSize: typography.sizes.md,
+    color: colors.text.primary,
+    fontFamily: fontFamilies.medium,
   },
   count: {
     fontSize: typography.sizes.xs,
     color: colors.text.muted,
-    textAlign: 'right',
-    paddingRight: spacing.sm,
-    width: 30,
+    marginTop: 1,
   },
-  barBg: {
+
+  // center: progress bar
+  barTrack: {
     flex: 1,
     height: 4,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backgroundColor: 'rgba(255,255,255,0.10)',
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
     borderRadius: radius.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)', 
+    backgroundColor: colors.brand.mid,   // the cyan-blue brand color
   },
+
+  // right: percentage
   percentage: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.semibold,
-    color: colors.text.primary,
-    width: 50,
+    width: 40,
     textAlign: 'right',
-    paddingLeft: spacing.sm,
+    fontSize: typography.sizes.md,
+    fontFamily: fontFamilies.bold,
+    color: colors.text.secondary,        // the golden secondary color
+    flexShrink: 0,
   },
 })

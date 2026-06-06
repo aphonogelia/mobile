@@ -1,6 +1,6 @@
 import { useAppContext } from '@/context/AppContext'
-import { colors, spacing } from '@/utils/theme'
-import { useEffect, useMemo, useState } from 'react'
+import { colors, fontFamilies, spacing } from '@/utils/theme'
+import { useMemo, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
         lineHeight: 28,
     },
     monthLabel: {
-        fontSize: 17,
-        fontWeight: '700',
+        fontSize: 22,
+        fontFamily: fontFamilies.heading,
         color: colors.text.primary,
-        letterSpacing: 0.3,
+        letterSpacing: 0.2,
     },
     dayHeaders: {
         flexDirection: 'row',
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
         width: CELL_SIZE,
         textAlign: 'center',
         fontSize: 12,
-        fontWeight: '600',
+        fontFamily: fontFamilies.medium,
         color: 'rgba(255,255,255,0.5)',
         textTransform: 'uppercase',
     },
@@ -172,11 +172,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: CELL_SIZE / 2,
     },
-    cellToday: { borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)' },
+    cellToday: { borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.35)' },
     cellSelected: { backgroundColor: colors.surface.card },
-    cellText: { fontSize: 14, color: colors.text.primary, fontWeight: '500' },
-    cellTextToday: { fontWeight: '700' },
-    cellTextSelected: { color: colors.text.primary, fontWeight: '700' },
+    cellText: { fontSize: 14, color: colors.text.primary, fontFamily: fontFamilies.medium },
+    cellTextToday: { fontFamily: fontFamilies.bold },
+    cellTextSelected: { color: colors.text.primary, fontFamily: fontFamilies.bold },
     dot: {
         width: 4,
         height: 4,

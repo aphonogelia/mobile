@@ -1,5 +1,6 @@
 import { useAppContext } from '@/context/AppContext'
 import { MOODS, type Entry } from '@/utils/types'
+import { colors, fontFamilies } from '@/utils/theme'
 import { useEffect } from 'react'
 import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
@@ -31,7 +32,7 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
       Alert.alert('Error', error)
       clearError()
     }
-  }, [error])
+  }, [error, clearError])
 
   if (!entry) return null
 
@@ -89,7 +90,6 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
             <View style={styles.moodList}>
               {selectedMoods.map((m) => (
                 <View key={m.id} style={styles.moodBadge}>
-                  <Image source={m.icon} style={styles.moodIcon} />
                   <Text style={styles.moodLabel}>{m.label}</Text>
                 </View>
               ))}
@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#F0F5FF',
+    backgroundColor: 'rgba(4, 8, 16, 0.96)',
   },
   handle: {
     width: 36,
     height: 4,
-    backgroundColor: '#C2D4EE',
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 11,
-    color: '#5A7FB5',
-    fontWeight: '700',
+    color: colors.text.muted,
+    fontFamily: fontFamilies.medium,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -162,9 +162,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 15,
     paddingBottom: 34, // Extra padding for iPhone "home bar" area
-    backgroundColor: '#F0F5FF', // Match container bg
+    backgroundColor: 'rgba(4, 8, 16, 0.96)',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#C2D4EE',
+    borderTopColor: colors.surface.cardBorder,
   },
   scroll: {
     flex: 1, // This allows the scroll area to take up all space above the buttons
@@ -180,12 +180,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E07A5F',
-    backgroundColor: '#FFF5F2', // Light tint for better visibility
+    borderColor: 'rgba(255, 107, 138, 0.35)',
+    backgroundColor: 'rgba(255, 107, 138, 0.10)',
   },
   deleteBtnText: {
-    color: '#E07A5F',
-    fontWeight: '600',
+    color: colors.accent.error,
+    fontFamily: fontFamilies.medium,
     fontSize: 13,
   },
   // Added Missing Edit Button styles
@@ -193,27 +193,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#014DB4',
-    shadowColor: '#014DB4',
+    backgroundColor: colors.accent.primary,
+    shadowColor: colors.accent.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
   editBtnText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: '#1A140B',
+    fontFamily: fontFamilies.bold,
     fontSize: 13,
   },
   closeBtn: {
     width: 30,
     height: 30,
     borderRadius: 999,
-    backgroundColor: '#DDE8F7',
+    backgroundColor: colors.surface.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeBtnText: { fontSize: 12, color: '#3A6199', fontWeight: '700' },
+  closeBtnText: { fontSize: 12, color: colors.text.primary, fontFamily: fontFamilies.bold },
 
   moodList: {
     flexDirection: 'row',
@@ -228,28 +228,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: 10,
-    backgroundColor: '#E4EDFA',
+    backgroundColor: colors.surface.card,
     borderWidth: 1,
-    borderColor: '#C2D4EE',
+    borderColor: colors.surface.cardBorder,
   },
-  moodIcon: { width: 14, height: 14 },
-  moodLabel: { fontSize: 11, fontWeight: '600', color: '#4A6FA5' },
+  moodLabel: { fontSize: 11, fontFamily: fontFamilies.medium, color: colors.text.secondary },
   title: {
     fontSize: 26,
-    fontWeight: '700',
-    color: '#0A1F3D',
+    fontFamily: fontFamilies.heading,
+    color: colors.text.primary,
     letterSpacing: -0.3,
     lineHeight: 32,
     marginBottom: 14,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C2D4EE',
+    backgroundColor: colors.surface.cardBorder,
     marginBottom: 16,
   },
   body: {
     fontSize: 16,
-    color: '#1A2E44',
+    color: colors.text.primary,
     lineHeight: 26,
   },
   dateTimeCol: {
@@ -261,8 +260,8 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     fontSize: 9,
-    color: '#5A7FB5',
-    fontWeight: '500',
+    color: colors.text.muted,
+    fontFamily: fontFamilies.medium,
     marginTop: 2,
     letterSpacing: 0.5,
   },

@@ -43,8 +43,6 @@ export default function Diary() {
 
   const PagerViewComponent = PagerView as any
 
-
-
   const fab = (
     <Pressable
       style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
@@ -60,16 +58,15 @@ export default function Diary() {
   return (
     <>
       <ImageBackground
-        source={
-          profile?.backgroundUrl
-            ? { uri: profile.backgroundUrl }
-            : require('../../assets/images/bgBlue.webp')
-        }
+        source={require('../../assets/images/bgBlue.webp')}
         style={styles.bg}
         resizeMode="cover"
       >
-
-        <View style={styles.overlay} pointerEvents="none" />
+        <View style={styles.overlay} pointerEvents="none">
+          <View style={styles.overlayBase} />
+          <View style={styles.overlayTopGlow} />
+          <View style={styles.overlayBottomShade} />
+        </View>
         <SafeAreaView style={styles.safe}>
           <PagerViewComponent
             ref={pagerRef}
@@ -100,52 +97,72 @@ export default function Diary() {
                 onPress={() => goToTab(i)}
                 activeOpacity={0.75}
               >
-                <Image
-                  source={tab.icon}
-                  style={[styles.tabIcon, activeTab === i && styles.tabIconActive]}
-                />
-
+                <View style={[styles.tabIconWrap, activeTab === i && styles.tabIconWrapActive]}>
+                  <View style={[styles.tabGlow, activeTab === i && styles.tabGlowActive]} />
+                  <Image
+                    source={tab.icon}
+                    style={[styles.tabIcon, activeTab === i && styles.tabIconActive]}
+                  />
+                  <View style={[styles.tabDot, activeTab === i && styles.tabDotActive]} />
+                </View>
               </TouchableOpacity>
             ))}
           </View>
         </SafeAreaView>
-
-        {/* Modals outside ImageBackground — render on top of everything */}
-        <NewEntryForm
-          visible={showForm}
-          editEntry={selectedEntry}
-          onClose={() => { setShowForm(false); setSelectedEntry(null) }}
-        />
-        <EntryModal
-          visible={!!selectedEntry}
-          entry={selectedEntry}
-          onClose={() => setSelectedEntry(null)}
-          onEdit={() => setShowForm(true)}
-        />
-
-
       </ImageBackground>
+
+      {/* Modals outside ImageBackground — never clipped by overlay */}
+      <NewEntryForm
+        visible={showForm}
+        editEntry={selectedEntry}
+        onClose={() => { setShowForm(false); setSelectedEntry(null) }}
+      />
+      <EntryModal
+        visible={!!selectedEntry}
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        onEdit={() => setShowForm(true)}
+      />
     </>
   )
 }
 
 
 const styles = StyleSheet.create({
-  bg: { flex: 1 ,
+  bg: {
+    flex: 1,
     opacity: 0.95,
   },
   safe: { flex: 1 },
   overlay: {
-  ...StyleSheet.absoluteFillObject,
-  backgroundColor: 'rgba(178, 187, 211, 0.29)',
-},
+    ...StyleSheet.absoluteFillObject,
+  },
+  overlayBase: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(4, 7, 14, 0.82)',
+  },
+  overlayTopGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '42%',
+    backgroundColor: 'rgba(200, 169, 110, 0.06)',
+  },
+  overlayBottomShade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '38%',
+    backgroundColor: 'rgba(0, 0, 0, 0.26)',
+  },
 
   pager: { flex: 1 },
   page: { flex: 1 },
 
   listContainer: {
     flex: 1,
-    // backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
 
   divider: {
@@ -156,26 +173,67 @@ const styles = StyleSheet.create({
 
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundColor: 'rgba(4, 7, 14, 0.46)',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border.light,
+    borderTopColor: 'rgba(255, 255, 255, 0.10)',
     paddingBottom: 4,
-    paddingTop: 8,
+    paddingTop: 10,
     paddingHorizontal: spacing.sm,
   },
   tabBtn: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 3,
+  },
+  tabIconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+  },
+  tabIconWrapActive: {
+    shadowColor: colors.accent.primary,
+    shadowOpacity: 0.34,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  tabGlow: {
+    position: 'absolute',
+    width: 28,
+    height: 28,
+    borderRadius: radius.full,
+    backgroundColor: 'transparent',
+  },
+  tabGlowActive: {
+    backgroundColor: 'rgba(200, 169, 110, 0.12)',
+    shadowColor: colors.accent.primary,
+    shadowOpacity: 0.65,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
   },
   tabIcon: {
     width: 26,
     height: 26,
-    opacity: 0.45,
+    opacity: 0.42,
   },
   tabIconActive: {
     opacity: 1,
+  },
+  tabDot: {
+    position: 'absolute',
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(200, 169, 110, 0)',
+  },
+  tabDotActive: {
+    backgroundColor: colors.accent.primary,
+    shadowColor: colors.accent.primary,
+    shadowOpacity: 0.95,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 0 },
   },
 
   fab: {
@@ -185,21 +243,21 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: radius.full,
-    backgroundColor: colors.surface.card,
+    backgroundColor: colors.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowColor: colors.accent.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 6,
   },
   fabPressed: {
-    backgroundColor: colors.surface.glassHover,
-    transform: [{ scale: 0.95 }],
+    transform: [{ scale: 0.96 }],
   },
   fabIcon: {
     fontSize: 28,
-    color: colors.text.primary,
+    color: '#1A140B',
     lineHeight: 32,
   },
 })

@@ -1,7 +1,7 @@
 import { useAppContext } from '@/context/AppContext'
-import { uploadAvatar, uploadBackground } from '@/utils/api'
+import { uploadAvatar } from '@/utils/api'
 import { supabase } from '@/utils/supabase'
-import { colors, radius, shadows, spacing, typography } from '@/utils/theme'
+import { colors, radius, shadows, spacing, typography, fontFamilies } from '@/utils/theme'
 import { Ionicons } from '@expo/vector-icons'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
@@ -50,13 +50,6 @@ export default function Profile() {
     await updateProfile({ avatarUrl: publicUrl })
   }
 
-  const handleChangeBackground = async () => {
-    const uri = await pickImage([9, 16])
-    if (!uri) return
-    const publicUrl = await uploadBackground(uri)
-    await updateProfile({ backgroundUrl: publicUrl })
-  }
-
   const startEditingName = () => {
     setEditingName(true)
     setTimeout(() => inputRef.current?.focus(), 50)
@@ -80,6 +73,15 @@ export default function Profile() {
     >
       {/* ── Hero ── */}
       <View style={styles.hero}>
+
+        {/* Logout button — top-right corner */}
+        <Pressable
+          style={({ pressed }) => [styles.logoutBtn, pressed && styles.logoutBtnPressed]}
+          onPress={handleLogout}
+          hitSlop={8}
+        >
+          <Ionicons name="log-out-outline" size={16} color={colors.accent.error} />
+        </Pressable>
 
         {/* Avatar */}
         <Pressable onPress={handleChangePhoto} hitSlop={4}>
@@ -114,7 +116,7 @@ export default function Profile() {
               onSubmitEditing={handleSaveName}
             />
             <Pressable onPress={handleSaveName} hitSlop={8}>
-              <Ionicons name="checkmark" size={18} color={colors.accent.yellow} />
+              <Ionicons name="checkmark" size={18} color={colors.accent.primary} />
             </Pressable>
             <Pressable onPress={handleCancelName} hitSlop={8}>
               <Ionicons name="close" size={18} color={colors.text.muted} />
@@ -135,25 +137,6 @@ export default function Profile() {
         <Text style={styles.entryCount}>
           {profile.entryCount} {profile.entryCount === 1 ? 'entry' : 'entries'}
         </Text>
-
-        {/* ── Action buttons ── */}
-        <View style={styles.actions}>
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]}
-            onPress={handleChangeBackground}
-          >
-            <Ionicons name="image-outline" size={14} color={colors.text.secondary} />
-            <Text style={styles.actionBtnText}>Background</Text>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [styles.actionBtn, styles.actionBtnDanger, pressed && styles.actionBtnPressed]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={14} color={colors.semantic.error} />
-            <Text style={[styles.actionBtnText, styles.actionBtnTextDanger]}>Log out</Text>
-          </Pressable>
-        </View>
       </View>
 
       {/* ── Stats ── */}
@@ -175,7 +158,25 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     margin: spacing.sm,
     paddingHorizontal: spacing.md,
+    // needed so the absolute logout btn is contained
+    position: 'relative',
   },
+
+  // Logout — top-right corner of the hero card
+  logoutBtn: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255, 107, 138, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 138, 0.30)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoutBtnPressed: { opacity: 0.6 },
 
   avatarWrapper: { position: 'relative', marginBottom: spacing.sm },
   pressed: { opacity: 0.8 },
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.semibold,
     color: colors.text.primary,
     borderBottomWidth: 1,
-    borderBottomColor: colors.accent.yellow,
+    borderBottomColor: colors.accent.primary,
     paddingVertical: 2,
     minWidth: 120,
     letterSpacing: 0.2,
@@ -242,34 +243,4 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
-
-  // ── Actions ──
-  actions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface.dark,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  actionBtnDanger: {
-    borderColor: 'rgba(255, 107, 138, 0.35)',
-    backgroundColor: 'rgba(255, 107, 138, 0.12)',
-  },
-  actionBtnPressed: { opacity: 0.65 },
-  actionBtnText: {
-    fontSize: typography.sizes.xs,
-    color: colors.text.secondary,
-    fontWeight: typography.weights.medium,
-    letterSpacing: 0.3,
-  },
-  actionBtnTextDanger: { color: colors.semantic.error },
 })

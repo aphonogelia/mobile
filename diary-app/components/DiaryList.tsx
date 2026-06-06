@@ -1,6 +1,6 @@
 import { useAppContext } from '@/context/AppContext'
 import { groupEntriesByDate } from '@/utils/function'
-import { colors, radius, spacing, typography } from '@/utils/theme'
+import { colors, fontFamilies, radius, spacing, typography } from '@/utils/theme'
 import { MOODS } from '@/utils/types'
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   loader: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   sectionHeader: {
     fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.bold,
+    fontFamily: fontFamilies.bold,
     color: colors.text.secondary,
     marginTop: spacing.md,
     marginBottom: spacing.xs,
@@ -91,12 +91,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface.card,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.surface.cardBorder,
     padding: spacing.sm,
   },
-  cardPressed: { 
-    backgroundColor: colors.surface.glassHover 
+  cardPressed: {
+    backgroundColor: colors.surface.glassHover
   },
   cardHeader: {
     flexDirection: 'row',
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+    fontFamily: fontFamilies.medium,
     color: colors.text.primary,
     flex: 1,
   },
@@ -115,14 +115,14 @@ const styles = StyleSheet.create({
     color: colors.text.muted,
     marginLeft: spacing.sm,
   },
-  moodRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 6 
+  moodRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
   },
   moodLabel: {
     fontSize: typography.sizes.xs,
-    fontWeight: 300,
+    fontFamily: fontFamilies.body,
     color: colors.text.secondary,
   },
 })
