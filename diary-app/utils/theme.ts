@@ -34,9 +34,9 @@ export const Fonts = Platform.select({
 export const colors = {
   // Brand — background image colors, do not use as UI surfaces
   brand: {
-    deep: '#b88804',
-    mid: '#ffc320',
-    glow: '#b99a43',
+    deep: '#00245acb',
+    mid: '#b2d1ffcb',
+    glow: '#4a93ff',
   },
 
   surface: {
@@ -53,12 +53,12 @@ export const colors = {
   // Text — for use on top of the background image
   text: {
     primary: '#FFFFFF',
-    secondary: '#ffc320',        // was CBD8E8
-    muted: '#f7dc95', 
+    secondary: '#c7deff',        // was CBD8E8
+    muted: '#dbdde0', 
   },
   // Accent — buttons, CTAs, highlights
   accent: {
-    primary: '#c8a96e',
+    primary: '#b2d1ff',
     error: '#ff6b8a',
   },
 

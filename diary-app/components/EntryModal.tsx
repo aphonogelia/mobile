@@ -1,8 +1,8 @@
 import { useAppContext } from '@/context/AppContext'
-import { MOODS, type Entry } from '@/utils/types'
-import { colors, fontFamilies } from '@/utils/theme'
+import { CATEGORY_COLORS, MoodCategory, MOODS, type Entry } from '@/utils/types'
+import { colors, fontFamilies, typography, radius } from '@/utils/theme'
 import { useEffect } from 'react'
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 type Props = {
   entry: Entry | null
@@ -89,8 +89,10 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
           {selectedMoods.length > 0 && (
             <View style={styles.moodList}>
               {selectedMoods.map((m) => (
-                <View key={m.id} style={styles.moodBadge}>
-                  <Text style={styles.moodLabel}>{m.label}</Text>
+                <View style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
+                  <Text style={[styles.moodLabel, { color: CATEGORY_COLORS[m.category as MoodCategory] }]}>
+                    {m.label}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -232,7 +234,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.surface.cardBorder,
   },
-  moodLabel: { fontSize: 11, fontFamily: fontFamilies.medium, color: colors.text.secondary },
+
+  moodLabel: {
+    fontSize: typography.sizes.xs,
+    fontFamily: fontFamilies.medium,
+    color: colors.text.secondary
+  },
+
+  labelPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
+  },
   title: {
     fontSize: 26,
     fontFamily: fontFamilies.heading,

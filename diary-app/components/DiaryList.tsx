@@ -1,7 +1,7 @@
 import { useAppContext } from '@/context/AppContext'
 import { groupEntriesByDate } from '@/utils/function'
 import { colors, fontFamilies, radius, spacing, typography } from '@/utils/theme'
-import { MOODS } from '@/utils/types'
+import { Entry, MOODS, MoodId, CATEGORY_COLORS, MoodCategory } from '@/utils/types'
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native'
 
 export default function DiaryList({ filterDate }: { filterDate?: string }) {
@@ -63,7 +63,11 @@ export default function DiaryList({ filterDate }: { filterDate?: string }) {
             {selectedMoods.length > 0 && (
               <View style={styles.moodRow}>
                 {selectedMoods.map(m => (
-                  <Text key={m.id} style={styles.moodLabel}>{m.label}</Text>
+                  <View style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
+                    <Text style={[styles.moodBtnLabel, { color: CATEGORY_COLORS[m.category as MoodCategory] }]}>
+                      {m.label}
+                    </Text>
+                  </View>
                 ))}
               </View>
             )}
@@ -120,9 +124,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6
   },
-  moodLabel: {
-    fontSize: typography.sizes.xs,
-    fontFamily: fontFamilies.body,
-    color: colors.text.secondary,
+
+  moodBtnLabel: { 
+    fontSize: typography.sizes.xs, 
+    fontFamily: fontFamilies.medium, 
+    color: colors.text.secondary 
+  },
+
+  labelPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
   },
 })

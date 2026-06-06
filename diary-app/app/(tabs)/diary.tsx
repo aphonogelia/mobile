@@ -65,7 +65,6 @@ export default function Diary() {
         <View style={styles.overlay} pointerEvents="none">
           <View style={styles.overlayBase} />
           <View style={styles.overlayTopGlow} />
-          <View style={styles.overlayBottomShade} />
         </View>
         <SafeAreaView style={styles.safe}>
           <PagerViewComponent
@@ -149,14 +148,7 @@ const styles = StyleSheet.create({
     height: '42%',
     backgroundColor: 'rgba(200, 169, 110, 0.06)',
   },
-  overlayBottomShade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '38%',
-    backgroundColor: 'rgba(0, 0, 0, 0.26)',
-  },
+
 
   pager: { flex: 1 },
   page: { flex: 1 },

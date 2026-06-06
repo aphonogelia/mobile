@@ -8,26 +8,36 @@ export interface Entry {
   updated_at?: string
 }
 
+export const CATEGORY_COLORS = {
+  uplifting: '#f7e927',
+  calm: '#fffab2',
+  low: '#f899c0',
+  activated: '#fc5097',
+} as const
+
+
 export type NewEntry = Omit<Entry, 'id' | 'created_at' | 'updated_at'>
 
 export const MOODS = [
-  { id: 'love', label: 'Love', icon: require('../assets/moods/love.png'), category: 'positive' },
-  { id: 'excited', label: 'Excited', icon: require('../assets/moods/excited.png'), category: 'positive' },
-  { id: 'joy', label: 'Joy', icon: require('../assets/moods/joy.png'), category: 'positive' },
-  { id: 'serene', label: 'Serene', icon: require('../assets/moods/serene.png'), category: 'positive' },
-  { id: 'capable', label: 'Capable', icon: require('../assets/moods/capable.png'), category: 'positive' },
-  { id: 'gratitude', label: 'Gratitude', icon: require('../assets/moods/gratitude.png'), category: 'positive' },
-  { id: 'hope', label: 'Hope', icon: require('../assets/moods/hope.png'), category: 'positive' },
-  { id: 'fragile', label: 'Fragile', icon: require('../assets/moods/fragile.png'), category: 'negative' },
-  { id: 'numb', label: 'Numb', icon: require('../assets/moods/numb.png'), category: 'neutral' },
-  { id: 'sad', label: 'Sad', icon: require('../assets/moods/sad.png'), category: 'negative' },
-  { id: 'overwhelmed', label: 'Overwhelmed', icon: require('../assets/moods/overwhelmed.png'), category: 'negative' },
-  { id: 'shame', label: 'Shame', icon: require('../assets/moods/shame.png'), category: 'negative' },
-  { id: 'fear', label: 'Fear', icon: require('../assets/moods/fear.png'), category: 'negative' },
-  { id: 'powerless', label: 'Powerless', icon: require('../assets/moods/powerless.png'), category: 'negative' },
-  { id: 'tense', label: 'Tense', icon: require('../assets/moods/tense.png'), category: 'negative' },
-  { id: 'anger', label: 'Anger', icon: require('../assets/moods/anger.png'), category: 'negative' },
+  { id: 'love', label: 'Love', category: 'uplifting' },
+  { id: 'excited', label: 'Excited', category: 'uplifting' },
+  { id: 'joy', label: 'Joy', category: 'uplifting' },
+  { id: 'serene', label: 'Serene', category: 'calm' },
+  { id: 'capable', label: 'Capable', category: 'calm' },
+  { id: 'gratitude', label: 'Gratitude', category: 'calm' },
+  { id: 'hope', label: 'Hope', category: 'calm' },
+  { id: 'numb', label: 'Numb', category: 'low' },
+  { id: 'fragile', label: 'Fragile', category: 'low' },
+  { id: 'sad', label: 'Sad', category: 'low' },
+  { id: 'powerless', label: 'Powerless', category: 'low' },
+  { id: 'shame', label: 'Shame', category: 'low' },
+  { id: 'overwhelmed', label: 'Overwhelmed', category: 'activated' },
+  { id: 'fear', label: 'Fear', category: 'activated' },
+  { id: 'tense', label: 'Tense', category: 'activated' },
+  { id: 'anger', label: 'Anger', category: 'activated' },
 ] as const
 
 export type MoodId = typeof MOODS[number]['id']
 export type Mood = typeof MOODS[number]
+export type MoodCategory = keyof typeof CATEGORY_COLORS
+

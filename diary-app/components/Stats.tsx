@@ -1,9 +1,10 @@
 import { useAppContext } from '@/context/AppContext'
 import { moodStats } from '@/utils/api'
 import { colors, fontFamilies, radius, spacing, typography } from '@/utils/theme'
-import { MOODS } from '@/utils/types'
+import { MOODS, MoodCategory, CATEGORY_COLORS } from '@/utils/types'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+
 
 type MoodStat = {
   mood: string
@@ -17,6 +18,7 @@ export default function Stats() {
   const [stats, setStats] = useState<MoodStat[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
 
   useEffect(() => {
     moodStats()
@@ -51,13 +53,17 @@ export default function Stats() {
           const mood = MOODS.find(m => m.id === item.mood)
           if (!mood) return null
 
+          const barColor = CATEGORY_COLORS[mood.category as MoodCategory]
+
           return (
             <View key={item.mood}>
               {index > 0 && <View style={styles.divider} />}
               <View style={styles.row}>
                 {/* Label + count */}
                 <View style={styles.labelGroup}>
-                  <Text style={styles.label} numberOfLines={1}>{mood.label}</Text>
+                  <View style={[styles.labelPill, { backgroundColor: barColor + '22' }]}>
+                    <Text style={[styles.label, { color: barColor }]}>{mood.label}</Text>
+                  </View>                  
                   <Text style={styles.count}>{item.count}×</Text>
                 </View>
 
@@ -127,13 +133,19 @@ const styles = StyleSheet.create({
 
   // left: label + count stacked vertically
   labelGroup: {
-    width: 88,
+    width: 120,
     flexShrink: 0,
   },
   label: {
     fontSize: typography.sizes.md,
     color: colors.text.primary,
     fontFamily: fontFamilies.medium,
+  },
+  labelPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
   },
   count: {
     fontSize: typography.sizes.xs,
@@ -152,16 +164,16 @@ const styles = StyleSheet.create({
   barFill: {
     height: '100%',
     borderRadius: radius.full,
-    backgroundColor: colors.brand.mid,   // the cyan-blue brand color
+    backgroundColor: colors.text.primary,   // the cyan-blue brand color
   },
 
   // right: percentage
   percentage: {
-    width: 40,
+    width: 60,
     textAlign: 'right',
     fontSize: typography.sizes.md,
     fontFamily: fontFamilies.bold,
-    color: colors.text.secondary,        // the golden secondary color
+    color: colors.text.primary,        // the golden secondary color
     flexShrink: 0,
   },
 })

@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { Entry, MOODS, MoodId } from '@/utils/types'
 import { useAppContext } from '@/context/AppContext'
 import {
     Alert, Keyboard, View, Text, TextInput, Pressable,
     Modal, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Image,
 } from 'react-native'
-import { colors, fontFamilies } from '@/utils/theme'
-
-
+import { colors, fontFamilies, radius } from '@/utils/theme'
+import { Entry, MOODS, MoodId, CATEGORY_COLORS, MoodCategory } from '@/utils/types'
 
 type Props = {
     visible: boolean
@@ -122,7 +120,11 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                                                     style={[styles.moodBtn, isSelected && styles.moodBtnSelected]}
                                                     onPress={() => toggleMood(m.id as MoodId)}
                                                 >
-                                                    <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected]}>{m.label}</Text>
+                                                    <View style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
+                                                        <Text style={[styles.moodBtnLabel, isSelected && styles.moodBtnLabelSelected, { color: CATEGORY_COLORS[m.category as MoodCategory] }]}>
+                                                            {m.label}
+                                                        </Text>
+                                                    </View>
                                                 </Pressable>
                                             )
                                         })}
@@ -235,24 +237,23 @@ const styles = StyleSheet.create({
     moodRow: { flexDirection: 'row', gap: 6 },
 
     moodBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 9,
-        paddingVertical: 5,
         borderRadius: 10,
-        backgroundColor: colors.surface.card,
         borderWidth: 1,
         borderColor: colors.surface.cardBorder,
     },
     moodBtnSelected: {
-        backgroundColor: 'rgba(200, 169, 110, 0.12)',
         borderColor: colors.accent.primary,
     },
     moodBtnIcon: { width: 14, height: 14 },
     moodBtnIconUnselected: { opacity: 0.45 },
     moodBtnLabel: { fontSize: 11, fontFamily: fontFamilies.medium, color: colors.text.secondary },
     moodBtnLabelSelected: { color: colors.accent.primary },
+    labelPill: {
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: radius.full,
+        alignSelf: 'flex-start',
+    },
     bodyScroll: {
         flex: 1,
     },
