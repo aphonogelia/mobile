@@ -20,9 +20,12 @@ app-example
 /ios
 /android
 
-expo-env.d.ts
 
 
 *.apk
 diary-app/*.apk
 build/
+
+/.vscode
+
+package-lock.json
