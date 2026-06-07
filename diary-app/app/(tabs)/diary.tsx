@@ -77,16 +77,16 @@ export default function Diary() {
               <Cal />
               <View style={styles.divider} />
               <View style={styles.listContainer}><DiaryList filterDate={filterDate} /></View>
-              {fab}
             </View>
             <View key="list" style={styles.page}>
               <View style={styles.listContainer}><DiaryList /></View>
-              {fab}
             </View>
             <View key="profile" style={styles.page}>
               <Profile />
             </View>
           </PagerViewComponent>
+
+              {fab}
 
           <View style={styles.tabBar}>
             {TABS.map((tab, i) => (
@@ -96,13 +96,12 @@ export default function Diary() {
                 onPress={() => goToTab(i)}
                 activeOpacity={0.75}
               >
-                <View style={[styles.tabIconWrap, activeTab === i && styles.tabIconWrapActive]}>
-                  <View style={[styles.tabGlow, activeTab === i && styles.tabGlowActive]} />
+                <View >
+                  <View />
                   <Image
                     source={tab.icon}
                     style={[styles.tabIcon, activeTab === i && styles.tabIconActive]}
                   />
-                  <View style={[styles.tabDot, activeTab === i && styles.tabDotActive]} />
                 </View>
               </TouchableOpacity>
             ))}
@@ -165,11 +164,11 @@ const styles = StyleSheet.create({
 
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(4, 7, 14, 0.46)',
+    backgroundColor: 'rgba(7, 9, 14, 0.46)',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: 'rgba(255, 255, 255, 0.10)',
-    paddingBottom: 4,
-    paddingTop: 10,
+    paddingBottom: 16,
+    paddingTop: 12,
     paddingHorizontal: spacing.sm,
   },
   tabBtn: {
@@ -184,54 +183,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  tabIconWrapActive: {
-    shadowColor: colors.accent.primary,
-    shadowOpacity: 0.34,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  tabGlow: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    borderRadius: radius.full,
-    backgroundColor: 'transparent',
-  },
-  tabGlowActive: {
-    backgroundColor: 'rgba(200, 169, 110, 0.12)',
-    shadowColor: colors.accent.primary,
-    shadowOpacity: 0.65,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 0 },
-  },
   tabIcon: {
     width: 26,
     height: 26,
-    opacity: 0.42,
+    opacity: 0.15,
   },
   tabIconActive: {
     opacity: 1,
   },
-  tabDot: {
-    position: 'absolute',
-    bottom: 2,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(200, 169, 110, 0)',
-  },
-  tabDotActive: {
-    backgroundColor: colors.accent.primary,
-    shadowColor: colors.accent.primary,
-    shadowOpacity: 0.95,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
-  },
+
 
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: 72,
+    right: 18,
     width: 56,
     height: 56,
     borderRadius: radius.full,

@@ -60,12 +60,10 @@ export default function Stats() {
               {index > 0 && <View style={styles.divider} />}
               <View style={styles.row}>
                 {/* Label + count */}
-                <View style={styles.labelGroup}>
-                  <View style={[styles.labelPill, { backgroundColor: barColor + '22' }]}>
-                    <Text style={[styles.label, { color: barColor }]}>{mood.label}</Text>
-                  </View>                  
-                  <Text style={styles.count}>{item.count}×</Text>
+                <View style={[styles.labelPill, { backgroundColor: barColor + '22' }]}>
+                  <Text style={[styles.label, { color: barColor }]}>{mood.label}</Text>
                 </View>
+
 
                 {/* Progress bar */}
                 <View style={styles.barTrack}>
@@ -74,6 +72,9 @@ export default function Stats() {
 
                 {/* Percentage */}
                 <Text style={styles.percentage}>{item.percentage}%</Text>
+
+                {/* N */}
+                <Text style={styles.count}>({item.count}×)</Text>
               </View>
             </View>
           )
@@ -134,10 +135,10 @@ const styles = StyleSheet.create({
   // left: label + count stacked vertically
   labelGroup: {
     width: 120,
-    flexShrink: 0,
+    flexShrink: 1,
   },
   label: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.sm,
     color: colors.text.primary,
     fontFamily: fontFamilies.medium,
   },
@@ -164,16 +165,16 @@ const styles = StyleSheet.create({
   barFill: {
     height: '100%',
     borderRadius: radius.full,
-    backgroundColor: colors.text.primary,   // the cyan-blue brand color
+    backgroundColor: colors.text.muted,   // the cyan-blue brand color
   },
 
   // right: percentage
   percentage: {
-    width: 60,
+    width: 40,
     textAlign: 'right',
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.sm,
     fontFamily: fontFamilies.bold,
-    color: colors.text.primary,        // the golden secondary color
+    color: colors.text.muted,        // the golden secondary color
     flexShrink: 0,
   },
 })

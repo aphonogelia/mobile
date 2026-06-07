@@ -63,7 +63,7 @@ export default function DiaryList({ filterDate }: { filterDate?: string }) {
             {selectedMoods.length > 0 && (
               <View style={styles.moodRow}>
                 {selectedMoods.map(m => (
-                  <View style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
+                  <View key={m.id} style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
                     <Text style={[styles.moodBtnLabel, { color: CATEGORY_COLORS[m.category as MoodCategory] }]}>
                       {m.label}
                     </Text>
@@ -125,10 +125,10 @@ const styles = StyleSheet.create({
     gap: 6
   },
 
-  moodBtnLabel: { 
-    fontSize: typography.sizes.xs, 
-    fontFamily: fontFamilies.medium, 
-    color: colors.text.secondary 
+  moodBtnLabel: {
+    fontSize: typography.sizes.xs,
+    fontFamily: fontFamilies.medium,
+    color: colors.text.secondary
   },
 
   labelPill: {

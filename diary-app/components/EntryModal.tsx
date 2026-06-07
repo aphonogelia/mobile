@@ -89,7 +89,10 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
           {selectedMoods.length > 0 && (
             <View style={styles.moodList}>
               {selectedMoods.map((m) => (
-                <View style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}>
+                <View
+                  key={m.id}
+                  style={[styles.labelPill, { backgroundColor: CATEGORY_COLORS[m.category as MoodCategory] + '22' }]}
+                >
                   <Text style={[styles.moodLabel, { color: CATEGORY_COLORS[m.category as MoodCategory] }]}>
                     {m.label}
                   </Text>
@@ -97,6 +100,8 @@ export default function EntryModal({ entry, visible, onClose, onEdit }: Props) {
               ))}
             </View>
           )}
+
+
 
           <Text style={styles.title}>{entry.title}</Text>
           <View style={styles.divider} />

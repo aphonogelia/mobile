@@ -70,6 +70,7 @@ depcheck:
 # Remove node_modules
 clean:
 	rm -rf node_modules
+	rm -f package-lock.json
 
 # Remove Android build output (~700MB)
 clean-build:
@@ -90,7 +91,6 @@ clean-emulator:
 
 # Remove everything
 fclean: clean clean-build clean-android clean-cache clean-emulator
-	rm -f package-lock.json
 
 # ─── NUCLEAR RESET ───────────────────────────────────────────────────────────
 

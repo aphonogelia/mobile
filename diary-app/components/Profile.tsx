@@ -80,7 +80,7 @@ export default function Profile() {
           onPress={handleLogout}
           hitSlop={8}
         >
-          <Ionicons name="log-out-outline" size={16} color={colors.accent.error} />
+          <Ionicons name="log-out-outline" size={25} color={colors.text.muted} />
         </Pressable>
 
         {/* Avatar */}
@@ -167,12 +167,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing.md,
     right: spacing.md,
-    width: 32,
-    height: 32,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(255, 107, 138, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 107, 138, 0.30)',
+    width: 25,
+    height: 25,
+    borderColor: colors.border.medium,
     alignItems: 'center',
     justifyContent: 'center',
   },

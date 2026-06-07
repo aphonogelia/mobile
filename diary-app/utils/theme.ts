@@ -35,7 +35,7 @@ export const colors = {
   // Brand — background image colors, do not use as UI surfaces
   brand: {
     deep: '#00245acb',
-    mid: '#86aadb',
+    mid: '#bdedfcee',
     glow: '#4a93ff',
   },
 
@@ -53,12 +53,12 @@ export const colors = {
   // Text — for use on top of the background image
   text: {
     primary: '#FFFFFF',
-    secondary: '#c7deff',        // was CBD8E8
+    secondary: '#bdedfcee',        // was CBD8E8
     muted: '#dbdde0', 
   },
   // Accent — buttons, CTAs, highlights
   accent: {
-    primary: '#b2d1ff',
+    primary: '#bdedfcee',
     error: '#ff6b8a',
   },
 

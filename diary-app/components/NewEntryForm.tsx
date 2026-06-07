@@ -142,7 +142,7 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                             <TextInput
                                 style={styles.bodyInput}
                                 placeholder="..."
-                                placeholderTextColor="#8BAAD4"
+                                placeholderTextColor={colors.text.muted}
                                 value={content}
                                 onChangeText={setContent}
                                 multiline
@@ -157,9 +157,10 @@ export default function NewEntryForm({ visible, onClose, editEntry }: Props) {
                             onPress={handleSave}
                             disabled={!canSave || isSaving.current}
                         >
-                            <View style={styles.fabIconWrapper}>
-                                <Text style={styles.fabIcon}>✓</Text>
-                            </View>
+                            <Image
+                                source={require('../assets/images/check.png')}
+                                style={styles.fabIcon}
+                            />
                         </Pressable>
                     </View>
                 </KeyboardAvoidingView>
@@ -242,10 +243,9 @@ const styles = StyleSheet.create({
         borderColor: colors.surface.cardBorder,
     },
     moodBtnSelected: {
-        borderColor: colors.accent.primary,
+        borderColor: colors.text.primary,
     },
     moodBtnIcon: { width: 14, height: 14 },
-    moodBtnIconUnselected: { opacity: 0.45 },
     moodBtnLabel: { fontSize: 11, fontFamily: fontFamilies.medium, color: colors.text.secondary },
     moodBtnLabelSelected: { color: colors.accent.primary },
     labelPill: {
@@ -300,11 +300,8 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? 1 : 0,
     },
     fabIcon: {
-        fontSize: 22,
-        color: '#1A140B',
-        fontFamily: fontFamilies.bold,
-        includeFontPadding: false,
-        textAlignVertical: 'center',
-        lineHeight: 22,
+        width: 20,
+        height: 20,
+        tintColor: '#1A140B',
     },
 })
